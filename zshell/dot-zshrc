@@ -1,0 +1,77 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# source /usr/local/opt/zinit/zinit.zsh
+# autoload -Uz _zinit
+# (( ${+_comps} )) && _comps[zinit]=_zinit
+
+zstyle ':completion:*' menu yes select
+
+# ice: apply keywords to next zinit command
+# wait: load plugin after reading .zshrc
+# depth: git clone depth
+# light: don't enable plugin reporting
+# snippet: load single file
+# zinit ice wait lucid; zinit light zsh-users/zsh-autosuggestions
+# zinit ice wait lucid; zinit light zsh-users/zsh-completions
+# zinit ice wait lucid; zinit light zdharma/fast-syntax-highlighting
+# zinit ice wait lucid; zinit snippet /usr/local/opt/fzf/shell/key-bindings.zsh
+# zinit ice wait lucid; zinit snippet ~/dev/dotfiles/zshell/fasd.zsh
+# zinit ice wait lucid; zinit snippet ~/dev/dotfiles/zshell/github.zsh
+
+# zinit ice depth=1; zinit light romkatv/powerlevel10k
+FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+
+# Adjust fpath ordering
+saveIFS="$IFS"
+IFS=":"
+a=(${fpath})
+FPATH="${a[4]}:${a[1]}:${a[3]}:${a[2]}"
+IFS=$saveIFS
+
+source /opt/homebrew/opt/powerlevel10k/powerlevel10k.zsh-theme
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /opt/homebrew/opt/asdf/libexec/asdf.sh
+# source /opt/homebrew/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+# ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
+# source /opt/homebrew/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+
+# autoload -Uz compinit
+# compinit
+
+ZDOTS=~/dev/dotfiles/zshell
+source $ZDOTS/powerlevel_10k.zsh
+# # source $ZDOTS/sources.zsh # already commented
+source $ZDOTS/shell-options.zsh
+source $ZDOTS/functions.zsh
+source $ZDOTS/aliases.zsh
+source $ZDOTS/exports.zsh
+source $ZDOTS/ssh-agent.zsh
+source $ZDOTS/fasd.zsh
+source $ZDOTS/github.zsh
+
+### RVM
+# source ~/.rvm/scripts/rvm
+# function _rvm_completion {
+#   source ~/.rvm/scripts/zsh/Completion/_rvm
+# }
+# compdef _rvm_completion rvm
+
+eval "$(rbenv init -)"
+eval "$(pyenv init --path)"
+eval "$(direnv hook zsh)"
+
+source $(dirname $(gem which colorls))/tab_complete.sh
+
+# alias luamake=/Users/egresh/.config/nvim/ext/lua-language-server/3rd/luamake/luamake
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ -f ~/dev/dotfiles/zshell/p10k.zsh ]] && source ~/dev/dotfiles/zshell/p10k.zsh
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# source $ZDOTS/powerlevel_10k.zsh

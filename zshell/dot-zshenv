@@ -1,0 +1,8 @@
+# Don't source /etc/zprofile or /etc/zshrc configuration files.
+# /etc/zprofile calls a path_helper that adds duplicate entries
+# to the path when spawning zsh instances from TMUX or itself 
+# 
+# Finally figured out how to properly initalize the zshell
+# without needing to resort to this
+#unsetopt GLOBAL_RCS
+zstyle ':completion:*' matcher-list 'r:|=*' 'l:|=* r:|=*'
