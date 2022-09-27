@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-DOT_FILES=~/dev/dotfiles
+DOT_FILES=~/dev/newdots
 CONFIG_DIR=~/.config
 YABAI_DIR=$CONFIG_DIR/yabai
+KITTY_DIR=$CONFIG_DIR/kitty
 BIN_DIR=~/bin
 GIT_DIR=$HOME
 ACTION=install
@@ -109,6 +110,24 @@ tmux() {
   esac
 }
 
+kitty() {
+  echo "Executing kitty $1"
+
+  case $1 in
+    install)
+      stow -t $KITTY_DIR -S kitty -v
+      ;;
+      
+    uninstall)
+      stow -t $KITTY_DIR -D kitty -v
+      ;;
+
+    *)
+      echo -n "unknown..."
+      ;;
+  esac
+}
+
 misc() {
   echo "Executing misc $1"
 
@@ -202,10 +221,11 @@ karabiner() {
 #yabai 'install'
 #bindir 'install'
 # git 'install'
-zsh 'install'
+# zsh 'install'
 #tmux 'install'
 #misc 'install'
 # efm_langserver 'install'
 # hammerspoon 'install'
 # xbar 'install'
 # vim 'install'
+kitty install
