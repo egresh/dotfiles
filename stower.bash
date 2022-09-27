@@ -4,6 +4,7 @@ DOT_FILES=~/dev/newdots
 CONFIG_DIR=~/.config
 YABAI_DIR=$CONFIG_DIR/yabai
 KITTY_DIR=$CONFIG_DIR/kitty
+KARABINER_DIR=$CONFIG_DIR/karabiner
 BIN_DIR=~/bin
 GIT_DIR=$HOME
 ACTION=install
@@ -205,11 +206,11 @@ karabiner() {
 
   case $1 in
     install)
-      stow -t "$CONFIG" -S karabiner -v
+      stow -t "$KARABINER_DIR" -S karabiner -v
       ;;
-      
+
     uninstall)
-      stow -t "$CONFIG" -D karabiner -v
+      stow -t "$KARABINER_DIR" -D karabiner -v
       ;;
 
     *)
@@ -228,4 +229,5 @@ karabiner() {
 # hammerspoon 'install'
 # xbar 'install'
 # vim 'install'
-kitty install
+# kitty install
+karabiner install

@@ -1,0 +1,167 @@
+{:profiles
+ {:Default
+  {:default true
+   :sim 250 ;; simultaneous_threshold_milliseconds (def: 50)
+   ; keys need to be pressed within this threshold to be considered simultaneous
+   :delay 500 ;; to_delayed_action_delay_milliseconds (def: 500)
+   ;; basically it means time after which the key press is count delayed
+   :alone 1000 ;; to_if_alone_timeout_milliseconds (def: 1000)
+   ;; hold for 995s and single tap registered; hold for 1005s and seen as modifier
+   :held 500 ;; to_if_held_down_threshold_milliseconds (def: 500)
+   ;; key is fired twice when 500 ms is elapsed (otherwise seen as a hold command)
+   } ;; profiles
+  }
+
+ :devices {:kb-apple-laptop [{:vendor_id 1452, :product_id 835}]
+           :kinesis [{:vendor_id 1523, :product_id 7}]}
+
+
+ :simlayers {:s-mode {:key :s}
+             :f-mode {:key :f}
+             :j-mode {:key :j}
+             :d-mode {:key :d}
+             :x-mode {:key :x}
+             :semi-mode {:key :semicolon}
+             :yabai-mode {:key :spacebar}
+             :return-mode {:key :return_or_enter}}
+
+ :applications {:iterm ["^com\\.googlecode\\.iterm2$"]
+                :kitty ["^net\\.kovidgoyal\\.kitty$"]
+                :terminal ["^com\\.apple\\.Terminal$"]
+                :firefox ["^org\\.mozilla\\.firefox$"]
+                :preview ["^com\\.apple\\.Preview$"]
+                :books ["^com\\.apple\\.iBooksX$"]
+                :terminals [:iterm :kitty :terminal]
+                :browsers [:firefox]}
+
+ :templates {:open "open -a '%s'"
+             :yabai "/opt/homebrew/bin/yabai %s"
+             :lua "/opt/homebrew/bin/lua %s"}
+
+ :main [{:des "JK in Preview moves the page up and down"
+         :rules [:preview
+                 [:j :down_arrow]
+                 [:k :up_arrow]
+                 [:h :left_arrow]
+                 [:l :right_arrow]]}
+
+        {:des "Right command tap triggers Alfred"
+         :rules [[:right_command :!COT6 [:kinesis]]]}
+
+        {:des "Caps lock triggers escape or shift on Kinesis"
+         :rules [[:##caps_lock :!!left_shift [:kinesis] {:afterup :escape}]]}
+
+        {:des "Caps lock sends escape or ctrl on Laptop"
+         :rules [[:##caps_lock :left_control [:kb-apple-laptop] {:alone :escape}]]}
+
+        {:des "End sends hyper on kinesis"
+         :rules [[:##end :!!left_shift [:kinesis] {:alone :end}]]}
+
+        {:des "Delete_or_backspace sends shift as a modifier on Kinesis"
+         :rules [[:##delete_or_backspace :left_shift [:kinesis] {:alone :delete_or_backspace :held :delete_or_backspace}]]}
+
+        {:des "j/k/h/l to navigate books app"
+         :rules [[:h :left_arrow [:books]]
+                 [:j :down_arrow [:books]]
+                 [:k :up_arrow [:books]]
+                 [:l :right_arrow [:books]]]}
+
+        {:des "Up and Down arrows send Left and Right Brackets on Kinesis in Terminals"
+         :rules [[:up_arrow :open_bracket [:terminals]]
+                 [:down_arrow :close_bracket [:terminals]]
+                 [:!Sup_arrow :!Sopen_bracket [:terminals]]
+                 [:!Sdown_arrow :!Sclose_bracket [:terminals]]]}
+
+        {:des "YABI-MODE"
+         :rules [:yabai-mode
+                 [:h [:yabai "-m window --focus west"]]
+                 [:j [:yabai "-m window --focus south"]]
+                 [:k [:yabai "-m window --focus north"]]
+                 [:l [:yabai "-m window --focus east"]]
+                 [:o [:yabai "-m window --toggle border"]]
+                 [:p [:yabai "-m space --toggle padding"]]
+                 [:g [:yabai "-m space --toggle gap"]]
+                 [:y [:yabai "-m space --mirror y-axis"]]
+                 [:n [:yabai "-m window --focus stack.next" ||
+                      :yabai "-m window --focus stack.first"]]
+                 [:m [:yabai "-m window --focus stack.prev" ||
+                      :yabai "-m window --focus stack.last"]]
+                 [:equal_sign [:yabai "-m space --balance"]]
+                 [:f [:yabai "-m window --toggle zoom-fullscreen"]]
+                 [:a [:yabai "-m window --focus recent"]]
+                 [:r [:yabai "-m space --rotate 90"]]
+                 [:x [:yabai "-m space --mirror x-axis"]]
+                 [:z [:yabai "-m window --toggle zoom-parent"]]]}
+
+        {:des "x-mode"
+         :rules [:x-mode
+                    ; [:w [:x :w] :terminals] ;; zsh autosuggestion select next section
+                    ; [:a [:x :q] :terminals] ;; zsh autosuggestion select til the end (bindkey -M viins 'xq' autosuggest-accept)
+                    [:f [:lua "/Users/egresh/.config/yabai/scripts/move_app_windows_to_current_space.lua Firefox"]]
+                    [:m [:lua "/Users/egresh/.config/yabai/scripts/move_app_windows_to_current_space.lua Mail"]]
+                ]
+        }
+
+        {:des "f-mode"
+         :rules [:f-mode
+                    [:w [:x :w] :terminals] ;; zsh autosuggestion select next section
+                    [:a [:x :q] :terminals] ;; zsh autosuggestion select til the end (bindkey -M viins 'xq' autosuggest-accept)
+                ]
+        }
+
+        {:des "hyper sequences"
+         :rules [[:!!i [:open "iTerm"]]
+                 [:!!f [:open "Firefox"]]
+                 [:!!p [:open "Parallels"]]
+                 [:!!e [:open "Mail"]]
+                 [:!!b [:open "Books"]]
+                 [:!!m [:open "Music"]]
+                 [:!!k [:open "Kitty"]]
+                 [:!!h [:yabai  "-m window --swap west"]]
+                 [:!!j [:yabai  "-m window --swap south"]]
+                 [:!!k [:yabai  "-m window --swap north"]]
+                 [:!!l [:yabai  "-m window --swap east"]]
+                 [:!!0 [:yabai  "-m display --focus recent"]]
+                 [:!!1 [:yabai  "-m display --focus 1"]]
+                 [:!!2 [:yabai  "-m display --focus 2"]]
+                 [:!!3 [:yabai  "-m display --focus 3"]]]}]}
+        ; {:des "semi-mode"
+        ;  :rules [:semi-mode!
+        ;          [:equal_sign [:yabai "-m space --balance"]]
+        ;          [:f [:yabai "-m window --toggle zoom-fullscreen"]]
+        ;          [:a [:yabai "-m window --focus recent"]]
+        ;          [:r [:yabai "-m space --rotate 90"]]
+        ;          [:x [:yabai "-m space --mirror x-axis"]]
+        ;          [:z [:yabai "-m window --toggle zoom-parent"]]]}
+
+
+ ;; !  | means mandatory -   modifier(s) alone when pressend change behavior
+    ;; #  | means optional  -   modifiers are optional (but atleast one necessary)
+
+    ;; :!Ca is keycode :a and prefix a with !C
+
+    ;; C  | left_command
+    ;; T  | left_control
+    ;; O  | left_option
+    ;; S  | left_shift
+    ;; F  | fn
+    ;; Q  | right_command
+    ;; W  | right_control
+    ;; E  | right_option
+    ;; R  | right_shift
+
+    ;; ## | optional any
+    ;; !! | command + control + optional + shift (hyper)
+
+    ;; Install via brew: `brew install yqrashawn/goku/goku`
+
+    ;; karabiner docs: ;; https://pqrs.org/osx/karabiner/json.html#complex_modifications-manipulator-definition
+    ;; <other options> includs ~to_if_alone~, ~to_if_held_down~,~to_after_key_up~, ~to_delayed_action~ and ~parameters~.
+
+    ;; (custom variables) & modifiers -> Advanced
+    ;; https://github.com/yqrashawn/GokuRakuJoudo/blob/master/examples.org#custom-variable
+
+    ;; Examples: https://github.com/yqrashawn/GokuRakuJoudo/blob/master/examples.org
+    ;; https://gist.github.com/kaushikgopal/ff7a92bbc887e59699c804b59074a126
+    ;; https://github.com/kchen0x/k-goku/blob/master/karabiner.edn
+
