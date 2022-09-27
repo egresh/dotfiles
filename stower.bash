@@ -34,6 +34,24 @@ yabai() {
   esac
 }
 
+skhd() {
+  echo "Executing skhd $1"
+
+  case $1 in
+    install)
+      stow -v -t $HOME -S skhd --dotfiles -v
+      ;;
+      
+    uninstall)
+      stow -v -t $HOME -D skhd --dotfiles -v
+      ;;
+
+    *)
+      echo -n "unknown..."
+      ;;
+  esac
+}
+
 bindir() {
   echo "Executing bindir $1"
 
@@ -230,4 +248,5 @@ karabiner() {
 # xbar 'install'
 # vim 'install'
 # kitty install
-karabiner install
+# karabiner install
+skhd install
