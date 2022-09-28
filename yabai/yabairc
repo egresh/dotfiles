@@ -1,0 +1,72 @@
+#!/usr/bin/env sh
+
+# scripting-addition must be loaded manually on macOS Big Sur
+# sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+
+global settings
+yabai -m config mouse_follows_focus          off
+yabai -m config focus_follows_mouse          autofocus
+yabai -m config mouse_modifier               ctrl
+yabai -m config mouse_action1                move
+yabai -m config mouse_action2                resize
+yabai -m config window_placement             second_child
+yabai -m config window_topmost               off
+yabai -m config window_opacity               on
+yabai -m config window_opacity_duration      0.0
+yabai -m config window_shadow                on
+yabai -m config active_window_opacity        1.0
+yabai -m config normal_window_opacity        0.95
+yabai -m config window_border                on 
+yabai -m config window_border_width          3
+yabai -m config active_window_border_color   0xfffe8019
+yabai -m config normal_window_border_color   0xffd79921
+yabai -m config split_ratio                  0.50
+yabai -m config auto_balance                 on
+yabai -m config debug_output                 on
+yabai -m config external_bar all:40:0
+yabai -m config insert_window_border_color   0xffd75f5f
+
+# general space settings
+yabai -m config layout                       bsp
+yabai -m config top_padding                  8
+yabai -m config bottom_padding               20
+yabai -m config left_padding                 20
+yabai -m config right_padding                20
+yabai -m config window_gap                   20
+
+yabai -m space 1  --label terminal
+yabai -m space 2  --label browser
+yabai -m space 3  --label email
+yabai -m space 4  --label books
+yabai -m space 5  --label chat
+yabai -m space 6  --label music
+yabai -m space 7  --label parallels
+yabai -m space 8  --label office
+
+yabai -m rule --add  app="Mail"                  space=email
+yabai -m rule --add  app="iTerm2"                space=terminal
+yabai -m rule --add  app="Terminal"              space=terminal
+yabai -m rule --add  app="Kitty"                 space=terminal
+yabai -m rule --add  app="Microsoft Teams"       space=chat
+yabai -m rule --add  app="Microsoft Excel"       space=office
+yabai -m rule --add  app="Microsoft PowerPoint"  space=office
+yabai -m rule --add  app="Microsoft Outlook"     space=email
+yabai -m rule --add  app="Vivaldi"               space=browser
+yabai -m rule --add  app="Safari"                space=browser
+yabai -m rule --add  app="Firefox"               space=browser
+yabai -m rule --add  app="Parallels"             space=parallels manage=on
+yabai -m rule --add  app="VM$"                   space=parallels manage=on
+yabai -m rule --add  app="Books"                 space=books     manage=on
+yabai -m rule --add  app="Music"                 space=music     manage=on
+yabai -m rule --add  app="Slack"                 space=chat
+yabai -m rule --add  app="Discord"               space=chat
+yabai -m rule --add  app="Messages"               space=chat
+yabai -m rule --add  app="^System Preferences$"                  manage=off
+yabai -m rule --add  app="QuickTime Player"                      manage=on
+yabai -m rule --add  app="VMware Horizon Client" space=parallels manage=on
+yabai -m rule --add  app="NoMachine"             space=parallels manage=on
+yabai -m rule --add  app="iStat Menus"                           manage=off
+yabai -m rule --add  app="Screen Sharing"                           manage=off
+
+echo "yabai configuration loaded.."
