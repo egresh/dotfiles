@@ -22,8 +22,8 @@
              :d-mode {:key :d}
              :x-mode {:key :x}
              :semi-mode {:key :semicolon}
-             :yabai-mode {:key :spacebar}
-             :return-mode {:key :return_or_enter}}
+             :yabai-mode-1 {:key :spacebar}
+             :yabai-mode-2 {:key :return_or_enter}}
 
  :applications {:iterm ["^com\\.googlecode\\.iterm2$"]
                 :kitty ["^net\\.kovidgoyal\\.kitty$"]
@@ -72,33 +72,61 @@
                  [:!Sup_arrow :!Sopen_bracket [:terminals]]
                  [:!Sdown_arrow :!Sclose_bracket [:terminals]]]}
 
-        {:des "YABI-MODE"
-         :rules [:yabai-mode
+        {:des "YABI-MODE-1"
+         :rules [:yabai-mode-1
+                 [:a [:yabai "-m window --focus recent"]]
+                 [:b [:yabai "-m space --layout bsp" ]]
+                 [:f [:yabai "-m window --toggle zoom-fullscreen"]]
+                 [:g [:yabai "-m space --toggle gap"]]
                  [:h [:yabai "-m window --focus west"]]
                  [:j [:yabai "-m window --focus south"]]
                  [:k [:yabai "-m window --focus north"]]
                  [:l [:yabai "-m window --focus east"]]
-                 [:o [:yabai "-m window --toggle border"]]
-                 [:p [:yabai "-m space --toggle padding"]]
-                 [:g [:yabai "-m space --toggle gap"]]
-                 [:y [:yabai "-m space --mirror y-axis"]]
-                 [:n [:yabai "-m window --focus stack.next" ||
-                      :yabai "-m window --focus stack.first"]]
                  [:m [:yabai "-m window --focus stack.prev" ||
                       :yabai "-m window --focus stack.last"]]
-                 [:equal_sign [:yabai "-m space --balance"]]
-                 [:f [:yabai "-m window --toggle zoom-fullscreen"]]
-                 [:a [:yabai "-m window --focus recent"]]
+                 [:n [:yabai "-m window --focus stack.next" ||
+                      :yabai "-m window --focus stack.first"]]
+                 [:o [:yabai "-m window --toggle border"]]
+                 [:p [:yabai "-m space --toggle padding"]]
                  [:r [:yabai "-m space --rotate 90"]]
+                 [:s "~/.config/yabai/scripts/stack.sh"]
+                 [:b "~/.config/yabai/scripts/bsp.sh"]
+                 [:t "~/.config/yabai/scripts/float.sh"]
                  [:x [:yabai "-m space --mirror x-axis"]]
-                 [:z [:yabai "-m window --toggle zoom-parent"]]]}
+                 [:y [:yabai "-m space --mirror y-axis"]]
+                 [:z [:yabai "-m window --toggle zoom-parent"]]
+                 [:1 [:yabai "-m window --space 1 ; yabai -m space --focus 1" ]]
+                 [:2 [:yabai "-m window --space 2 ; yabai -m space --focus 2" ]]
+                 [:3 [:yabai "-m window --space 3 ; yabai -m space --focus 3" ]]
+                 [:4 [:yabai "-m window --space 4 ; yabai -m space --focus 4" ]]
+                 [:5 [:yabai "-m window --space 5 ; yabai -m space --focus 5" ]]
+                 [:6 [:yabai "-m window --space 6 ; yabai -m space --focus 6" ]]
+                 [:7 [:yabai "-m window --space 7 ; yabai -m space --focus 7" ]]
+                 [:8 [:yabai "-m window --space 8 ; yabai -m space --focus 8" ]]
+                 [:9 [:yabai "-m window --space 9 ; yabai -m space --focus 9" ]]
+                 [:0 [:yabai "-m window --space recent; yabai -m space --focus recent" ]]
+                 [:equal_sign [:yabai "-m space --balance"]]
+                 ] }
+
+        {:des "YABAI-MODE-2"
+         :rules [:yabai-mode-2
+                 [:a [:yabai "-m window --resize left:-60:0"]]
+                 [:f [:yabai "-m window --resize left:60:0"]]
+                 [:s [:yabai "-m window --resize top:0:-60"]]
+                 [:d [:yabai "-m window --resize top:0:60"]]
+                 [:h [:yabai "-m window --resize right:-60:0"]]
+                 [:l [:yabai "-m window --resize right:60:0"]]
+                 [:j [:yabai "-m window --resize bottom:0:60"]]
+                 [:k [:yabai "-m window --resize bottom:0:-60"]]
+                 [:o "~/.config/yabai/scripts/big_middle.sh"]
+                 ] }
 
         {:des "x-mode"
          :rules [:x-mode
                     ; [:w [:x :w] :terminals] ;; zsh autosuggestion select next section
                     ; [:a [:x :q] :terminals] ;; zsh autosuggestion select til the end (bindkey -M viins 'xq' autosuggest-accept)
-                    [:f [:lua "/Users/egresh/.config/yabai/scripts/move_app_windows_to_current_space.lua Firefox"]]
-                    [:m [:lua "/Users/egresh/.config/yabai/scripts/move_app_windows_to_current_space.lua Mail"]]
+                    [:f [:lua "~/.config/yabai/scripts/move_app_windows_to_current_space.lua Firefox"]]
+                    [:m [:lua "~/.config/yabai/scripts/move_app_windows_to_current_space.lua Mail"]]
                 ]
         }
 
