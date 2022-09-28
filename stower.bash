@@ -4,7 +4,7 @@ DOT_FILES=~/dev/newdots
 CONFIG_DIR=~/.config
 YABAI_DIR=$CONFIG_DIR/yabai
 KITTY_DIR=$CONFIG_DIR/kitty
-KARABINER_DIR=$CONFIG_DIR/karabiner
+SKHD_DIR=$CONFIG_DIR/skhd
 BIN_DIR=~/bin
 GIT_DIR=$HOME
 ACTION=install
@@ -39,11 +39,11 @@ skhd() {
 
   case $1 in
     install)
-      stow -v -t $HOME -S skhd --dotfiles -v
+      stow -v -t $SKHD_DIR -S skhd --dotfiles -v
       ;;
       
     uninstall)
-      stow -v -t $HOME -D skhd --dotfiles -v
+      stow -v -t $SKHD_DIR -D skhd --dotfiles -v
       ;;
 
     *)
@@ -224,11 +224,11 @@ karabiner() {
 
   case $1 in
     install)
-      stow -t "$KARABINER_DIR" -S karabiner -v
+      stow -t "$CONFIG_DIR" -S karabiner -v
       ;;
 
     uninstall)
-      stow -t "$KARABINER_DIR" -D karabiner -v
+      stow -t "$CONFIG_DIR" -D karabiner -v
       ;;
 
     *)
@@ -248,5 +248,4 @@ karabiner() {
 # xbar 'install'
 # vim 'install'
 # kitty install
-# karabiner install
-skhd install
+karabiner install
