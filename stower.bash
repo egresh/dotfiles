@@ -118,7 +118,7 @@ tmux() {
     install)
       stow -t $HOME -S tmux --dotfiles -v
       ;;
-      
+
     uninstall)
       stow -t $HOME -D tmux --dotfiles -v
       ;;
@@ -241,11 +241,11 @@ karabiner() {
 #bindir 'install'
 # git 'install'
 # zsh 'install'
-#tmux 'install'
+tmux 'install'
 #misc 'install'
 # efm_langserver 'install'
 # hammerspoon 'install'
 # xbar 'install'
 # vim 'install'
 # kitty install
-karabiner install
+# karabiner install
