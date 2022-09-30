@@ -1,0 +1,128 @@
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+
+source "$PLUGIN_DIR/colors.sh"
+
+sketchybar --bar height=40        \
+                 blur_radius=0    \
+                 position=top     \
+                 padding_left=10  \
+                 padding_right=20 \
+                 y_offset=0       \
+                 color=0x00000000 \
+                 border_width=0   \
+                 corner_radius=10 \
+                 margin=0
+
+sketchybar --default updates=when_shown                    \
+                     background.height=40                  \
+                     background.drawing=on                 \
+                     background.border_width=3             \
+                     background.corner_radius=5            \
+                     background.padding_left=10            \
+                     background.padding_right=10           \
+                     drawing=on                            \
+                     icon.font="Hack Nerd Font:Bold:30.0"  \
+                     label.font="ShureTechMono Nerd Font:Mono:22.0"  \
+                     label.font="Hack Nerd Font:Bold:14.0" \
+                     label.drawing=off                     \
+                     label.padding_left=4                  \
+                     label.padding_right=4                 \
+
+sketchybar --add item modal_indicator left             \
+           --set modal_indicator                       \
+                 icon.color=$bright_yellow             \
+                 icon.padding_left=15                  \
+                 icon.padding_right=15                 \
+                 background.border_color=$bright_orange \
+                 background.color=$dark0_soft          \
+                 update_freq=1                         \
+                 script="$PLUGIN_DIR/modal.sh"         \
+                 click_script="$PLUGIN_DIR/bsp_switch.sh" \
+           --subscribe modal_indicator mouse.clicked
+
+sketchybar --add item empty_space left \
+           --set empty_space width=50
+
+SPACES=("terminals" "browsers" "email" "books" "chat" "music" "parallels" "office")
+ICONS=("" " " "" "" " " " " "" " ")
+for i in "${!SPACES[@]}"
+do
+  sid=$(($i+1))
+  sketchybar --add space ${SPACES[$i]} left              \
+             --set ${SPACES[$i]} associated_space=$sid   \
+                    icon=${ICONS[$i]}                    \
+                    icon.color=$bright_green             \
+                    icon.highlight_color=$bright_orange  \
+                    script="$PLUGIN_DIR/space.sh"        \
+                    click_script="osascript $PLUGIN_DIR/switch_space.osa"
+done
+
+sketchybar --add item program_name left                            \
+           --set program_name icon=                               \
+                 script="$PLUGIN_DIR/window_title.sh" \
+                     label.drawing=on                            \
+           --subscribe program_name front_app_switched
+
+sketchybar --add bracket primary_spaces terminals   \
+                                        browsers    \
+                                        email       \
+                                        books       \
+                                        chat        \
+                                        music       \
+                                        parallels   \
+                                        office      \
+           --set primary_spaces background.border_color=$neutral_yellow \
+                                background.color=$dark0_soft
+           # --add bracket istats_metric "iStat Menus Status,com.bjango.istatmenus.cpu"       \
+           #                             "iStat Menus Status,com.bjango.istatmenus.memory"    \
+           #                             "iStat Menus Status,com.bjango.istatmenus.network"   \
+           #                             "iStat Menus Status,com.bjango.istatmenus.diskusage" \
+           # --set istats_metric background.border_color=$bright_blue  \
+           #                     background.corner_radius=5            \
+           #                     background.color=$dark0_hard
+
+sketchybar --add alias "iStat Menus Status,com.bjango.istatmenus.cpu"       center \
+           --set "iStat Menus Status,com.bjango.istatmenus.cpu" \
+           icon='cpu' \
+                     icon.font="Hack Nerd Font:Bold:15.0"  \
+                               icon.color=$bright_orange \
+           --add alias "iStat Menus Status,com.bjango.istatmenus.memory"    center \
+           --set "iStat Menus Status,com.bjango.istatmenus.memory" \
+           icon='mem' \
+                               icon.color=$bright_orange \
+                     icon.font="Hack Nerd Font:Bold:15.0"  \
+           --add alias "iStat Menus Status,com.bjango.istatmenus.network"   center \
+           --set "iStat Menus Status,com.bjango.istatmenus.network" \
+           icon='net' \
+                               icon.color=$bright_orange \
+                     icon.font="Hack Nerd Font:Bold:15.0"  \
+           --add alias "iStat Menus Status,com.bjango.istatmenus.diskusage" center \
+           --set "iStat Menus Status,com.bjango.istatmenus.diskusage" \
+           icon='dsk' \
+                               icon.color=$bright_orange \
+                     icon.font="Hack Nerd Font:Bold:15.0"  \
+           --add bracket istats_metric "iStat Menus Status,com.bjango.istatmenus.cpu"       \
+                                       "iStat Menus Status,com.bjango.istatmenus.memory"    \
+                                       "iStat Menus Status,com.bjango.istatmenus.network"   \
+                                       "iStat Menus Status,com.bjango.istatmenus.diskusage" \
+           --set istats_metric background.color=$dark0_soft  \
+                               background.corner_radius=5            \
+                               background.border_color=$bright_yellow \
+           
+sketchybar --add alias "iStat Menus Status,com.bjango.istatmenus.time"      right \
+           --add alias "iStat Menus Status,com.bjango.istatmenus.sensors"   right \
+           --add alias "iStat Menus Status,com.bjango.istatmenus.battery"   right \
+           --add alias "Hammerspoon,Item-1"                                 right \
+           --add alias "Location Menu,Item-0"                               right \
+           --add bracket menu_data "iStat Menus Status,com.bjango.istatmenus.time"    \
+                                   "iStat Menus Status,com.bjango.istatmenus.sensors" \
+                                   "iStat Menus Status,com.bjango.istatmenus.battery" \
+                                   "Hammerspoon,Item-1"                               \
+                                   "Location Menu,Item-0" \
+           --set menu_data background.border_color=$bright_blue  \
+                           background.color=$dark0_soft
+
+
+sketchybar --update
+
+echo "sketchybar configuration loaded.."

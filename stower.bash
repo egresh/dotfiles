@@ -256,6 +256,24 @@ neovim() {
   esac
 }
 
+sketchybar() {
+  echo "Executing sketchybar $1"
+
+  case $1 in
+    install)
+      stow -t "$CONFIG_DIR" -S sketchybar -v
+      ;;
+
+    uninstall)
+      stow -t "$CONFIG_DIR" -D sketchybar -v
+      ;;
+
+    *)
+      echo -n "unknown..."
+      ;;
+  esac
+}
+
 #yabai 'install'
 # bindir 'uninstall'
 # git 'install'
@@ -268,4 +286,5 @@ neovim() {
 # vim 'install'
 # kitty install
 # karabiner install
-neovim install
+# neovim install
+sketchybar install

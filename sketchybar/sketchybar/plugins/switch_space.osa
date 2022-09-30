@@ -1,0 +1,15 @@
+-- key codes are apple script representations
+-- https://iangeli.com/2020/04/24/Complete-list-of-AppleScript-key-codes.html
+-- 18 = 1; 19 = 2; 20 = 3, ...
+set space_to_keycode to { 18, 19, 20, 21, 23, 22, 26, 28, 25 }
+
+-- SID is set by sketchybar. It is the Space ID.
+set spaceId to (system attribute "SID")
+
+-- get the apple script key code by indexing into space_to_keycode by SID
+set key_code to item spaceId of space_to_keycode
+
+-- send control + key_code to Mission Control
+tell application "System Events"
+  key code key_code using {control down}
+end tell
