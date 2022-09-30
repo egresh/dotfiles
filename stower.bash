@@ -5,6 +5,7 @@ CONFIG_DIR=~/.config
 YABAI_DIR=$CONFIG_DIR/yabai
 KITTY_DIR=$CONFIG_DIR/kitty
 SKHD_DIR=$CONFIG_DIR/skhd
+NVIM_DIR=$CONFIG_DIR/nvim
 BIN_DIR=~/bin
 GIT_DIR=$HOME
 ACTION=install
@@ -237,11 +238,29 @@ karabiner() {
   esac
 }
 
+neovim() {
+  echo "Executing neovim $1"
+
+  case $1 in
+    install)
+      stow -t "$CONFIG_DIR" -S neovim -v
+      ;;
+
+    uninstall)
+      stow -t "$CONFIG_DIR" -D neovim -v
+      ;;
+
+    *)
+      echo -n "unknown..."
+      ;;
+  esac
+}
+
 #yabai 'install'
-#bindir 'install'
+# bindir 'uninstall'
 # git 'install'
 # zsh 'install'
-tmux 'install'
+#tmux 'install'
 #misc 'install'
 # efm_langserver 'install'
 # hammerspoon 'install'
@@ -249,3 +268,4 @@ tmux 'install'
 # vim 'install'
 # kitty install
 # karabiner install
+neovim install

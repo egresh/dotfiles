@@ -1,0 +1,21 @@
+return {
+    solargraph = {
+        useBundler = true,
+        logLevel = "debug",
+        transport = "stdio",
+        promptDownload = true,
+        completion = true,
+        diagnostics = true,
+        autoformat = false,
+        formatting = true,
+        hover = true,
+        symbols = true,
+        definitions = true,
+        folding = true,
+        references = true,
+        rename = true,
+        checkGemVersion = false,
+        commandPath = "/foo/bar",
+    },
+    filetypes = { "ruby" },
+}
