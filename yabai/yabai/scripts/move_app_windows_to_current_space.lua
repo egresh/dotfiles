@@ -1,7 +1,3 @@
-package.path = os.getenv('HOME')
-    .. '/.config/yabai/scripts/lua/?.lua;'
-    .. package.path
-
 local yabai = require 'yabai'
 
 if arg[1] == nil then
