@@ -48,3 +48,4 @@ if [ -n "$VIM" ]; then
 fi
 
 export GOKU_EDN_CONFIG_FILE="${HOME}/.config/karabiner/karabiner.edn"
+export LUA_PATH="$HOME/dev/lua/?/init.lua;$HOME/dev/lua/*/?.lua;$HOME/dev/lua/?.lua"
