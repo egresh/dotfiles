@@ -1,0 +1,56 @@
+[color]
+	ui = true
+	submodule = log
+[alias]
+	o = log --oneline --color
+	glog = log -E -i --grep
+	ll = log --oneline --decorate --graph --all
+	st = status
+	ss = status --short
+	unstage = reset
+	ba = branch -a
+	b = branch
+	ctags = ! .git/hooks/ctags
+	alias = ! git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /
+	dp = diff --word-diff --unified=10
+	dcw = diff --color-words
+	bm = branch --merged
+    rr = remote -v
+	so = show --pretty='parent %Cred%p%Creset commit %Cred%h%Creset%C(yellow)%d%Creset%n%n%w(72,2,2)%s%n%n%w(72,0,0)%C(cyan)%an%Creset %Cgreen%ar%Creset'
+	lg = log --pretty='%Cred%h%Creset | %C(yellow)%d%Creset %s %Cgreen(%cr)%Creset %C(cyan)[%an]%Creset' --graph
+	dc = diff --cached
+	root = rev-parse --show-toplevel
+	d = diff
+	cob = "checkout -b"
+	co = "checkout"
+[fetch]
+	prune = true
+[diff]
+	tool = difft
+	algorithm = histogram
+[init]
+	templatedir = ~/.git_template
+	defaultBranch = main
+[core]
+	excludesfile = ~/.git_template/git_ignore
+	autocrlf = input
+  pager = less -JeFXnimR
+	whitespace = blank-at-eol,blank-at-eof,tab-in-indent
+	; pager = diff-so-fancy | less --tabs=4 -RFX
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[color "diff"]
+	meta = yellow
+	frag = magenta bold
+	commit = yellow bold
+	whitespace = red reverse
+[color "diff-highlight"]
+	oldNormal = red bold
+	newNormal = green bold
+	newHighlight = green bold 52
+	oldHighlight = red bold 52
+[credential]
+	helper = cache
