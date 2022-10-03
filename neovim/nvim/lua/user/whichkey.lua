@@ -94,7 +94,7 @@ local mappings = {
         k = { "<cmd>lua vim.diagnostic.goto_next()<CR>", "Goto Next" },
         q = { "<cmd>lua vim.diagnostic.setloclist()<CR>", "Set Loc List" },
         w = { "<cmd>lua vim.diagnostic.setqflist()<CR>", "Set Loc List" },
-        f = { "<CMD>lua vim.lsp.buf.formatting()<CR>", "Format Buffer" },
+        f = { "<CMD>lua vim.lsp.buf.format({ async = true })<CR>", "Format Buffer" },
         d = { "<CMD>lua vim.lsp.buf.definition()<CR>", "Goto Definition" },
         c = { "<CMD>lua vim.lsp.buf.declaration()<CR>", "Goto Declaration" },
         h = { "<CMD>lua vim.lsp.buf.hover()<CR>", "Hover" },

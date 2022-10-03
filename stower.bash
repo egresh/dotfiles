@@ -2,7 +2,6 @@
 
 DOT_FILES=~/dev/newdots
 CONFIG_DIR=~/.config
-YABAI_DIR=$CONFIG_DIR/yabai
 KITTY_DIR=$CONFIG_DIR/kitty
 SKHD_DIR=$CONFIG_DIR/skhd
 NVIM_DIR=$CONFIG_DIR/nvim
@@ -17,16 +16,11 @@ yabai() {
 
   case $1 in
     install)
-      if ! [ -d $YABAI_DIR ]; then
-        mkdir -p $YABAI_DIR
-      fi
-
-      stow -v -t $YABAI_DIR -S yabai
+      stow -v -t $CONFIG_DIR -S yabai
       ;;
       
     uninstall)
-      stow -v -t $YABAI_DIR -D yabai
-      rmdir $YABAI_DIR
+      stow -v -t $CONFIG_DIR -D yabai
       ;;
 
     *)
@@ -83,7 +77,7 @@ git() {
     install)
       stow -v -t $GIT_DIR -S git --dotfiles
       ;;
-      
+
     uninstall)
       stow -v -t $GIT_DIR -D git --dotfiles
       ;;
@@ -274,9 +268,9 @@ sketchybar() {
   esac
 }
 
-#yabai 'install'
+# yabai 'install'
 # bindir 'uninstall'
-# git 'install'
+git 'install'
 # zsh 'install'
 #tmux 'install'
 #misc 'install'
@@ -287,4 +281,4 @@ sketchybar() {
 # kitty install
 # karabiner install
 # neovim install
-sketchybar install
+## sketchybar install
