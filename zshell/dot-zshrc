@@ -55,7 +55,7 @@ source $ZDOTS/ssh-agent.zsh
 source $ZDOTS/fasd.zsh
 source $ZDOTS/github.zsh
 
-[ -e $ZDOTS/custom.zsh && source $ZDOTS/custom.zsh ]
+[[ -e $ZDOTS/custom.zsh ]] && source $ZDOTS/custom.zsh
 ### RVM
 # source ~/.rvm/scripts/rvm
 # function _rvm_completion {
