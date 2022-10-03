@@ -1,0 +1,5 @@
+.DS_Store
+
+# ignoring git/ for now
+# need to figure out $HOME per system
+git/
