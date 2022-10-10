@@ -13,8 +13,6 @@ sketchybar --bar height=40        \
                  corner_radius=10 \
                  margin=0
 
-
-
 sketchybar --default updates=when_shown                    \
                      background.height=40                  \
                      background.drawing=on                 \
@@ -37,12 +35,9 @@ sketchybar --add item modal_indicator left             \
                  background.border_color=$bright_orange \
                  background.color=$dark0_soft          \
                  update_freq=1                         \
-                 script="$PLUGIN_DIR/modal.sh"         \
+                 script="$PLUGIN_DIR/modal.lua"         \
                  click_script="$PLUGIN_DIR/bsp_switch.sh" \
            --subscribe modal_indicator mouse.clicked
-
-sketchybar --add item spacer_1 left \
-           --set spacer_1 width=50
 
 SPACES=("terminals" "browsers" "email" "books" "chat" "music" "parallels" "office")
 ICONS=("" " " "" "" " " " " "" " ")
@@ -51,6 +46,7 @@ do
   sid=$(($i+1))
   sketchybar --add space ${SPACES[$i]} left              \
              --set ${SPACES[$i]} associated_space=$sid   \
+                    ignore_association=1 \
                     icon=${ICONS[$i]}                    \
                     icon.color=$bright_green             \
                     icon.highlight_color=$bright_orange  \
@@ -72,23 +68,18 @@ sketchybar --add bracket primary_spaces terminals   \
 sketchybar --add item spacer_2 left \
            --set spacer_2 width=10
 
-sketchybar --add item space_name left                  \
-           --set icon="I" \
-                 icon.drawing=on \
-                 icon.color=$bright_yellow \
-                    icon.color=$bright_green             \
-                    icon.highlight_color=$bright_orange  \
+sketchybar --add item program_name left \
+           --set program_name \
+                 drawing=on \
                  label.drawing=on \
-                 label="foo" \
+                 label.color=$bright_orange \
+                 label.background.drawing=on \
+                 label.padding_left=10 \
+                 label.padding_right=10 \
+                 background.color=$dark0_soft \
+                 background.border_color=$neutral_yellow \
+                 script="$PLUGIN_DIR/application_title.lua" \
            --subscribe program_name front_app_switched
-
-sketchybar --add item program_name left                 \
-           --set icon="N" \
-           --subscribe program_name front_app_switched
-
-sketchybar --add bracket program_info space_name program_name \
-           --set program_info background.border_color=$neutral_yellow \
-                 background.color=$dark0_soft
 
 sketchybar --add alias "iStat Menus Status,com.bjango.istatmenus.cpu"       center \
            --set "iStat Menus Status,com.bjango.istatmenus.cpu" \
@@ -117,7 +108,9 @@ sketchybar --add alias "iStat Menus Status,com.bjango.istatmenus.cpu"       cent
            --set istats_metric background.color=$dark0_soft  \
                                background.corner_radius=5            \
                                background.border_color=$neutral_yellow \
-           
+                               script="$PLUGIN_DIR/istats_hide.lua" \
+           --subscribe istats_metric display_change
+
 sketchybar --add alias "iStat Menus Status,com.bjango.istatmenus.time"      right \
            --add alias "iStat Menus Status,com.bjango.istatmenus.sensors"   right \
            --add alias "iStat Menus Status,com.bjango.istatmenus.battery"   right \
