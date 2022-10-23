@@ -140,6 +140,6 @@ return packer.startup(function(use)
     use({ "tpope/vim-bundler", disable = false })
 
     -- Testing
-    use({ "egresh/oleo", disable = false })
-    use({ "egresh/telescope-prosession", disable = false })
+    --[[ use({ "egresh/oleo", disable = false }) ]]
+    -- use({ "egresh/telescope-prosession", disable = false })
 end)

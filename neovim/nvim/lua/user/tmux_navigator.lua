@@ -1,5 +1,5 @@
 -- Configuration
-require('Navigator').setup({ disable_on_zoom = true })
+--require('Navigator').setup({ disable_on_zoom = true })
 
 -- Keybindings
 local map = vim.api.nvim_set_keymap

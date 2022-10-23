@@ -251,11 +251,6 @@ _G.packer_plugins = {
     path = "/Users/egresh/.local/share/nvim/site/pack/packer/opt/nvim-web-devicons",
     url = "https://github.com/kyazdani42/nvim-web-devicons"
   },
-  oleo = {
-    loaded = true,
-    path = "/Users/egresh/.local/share/nvim/site/pack/packer/start/oleo",
-    url = "https://github.com/egresh/oleo"
-  },
   ["packer.nvim"] = {
     loaded = true,
     path = "/Users/egresh/.local/share/nvim/site/pack/packer/start/packer.nvim",
@@ -285,11 +280,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/egresh/.local/share/nvim/site/pack/packer/start/telescope-fzf-native.nvim",
     url = "https://github.com/nvim-telescope/telescope-fzf-native.nvim"
-  },
-  ["telescope-prosession"] = {
-    loaded = true,
-    path = "/Users/egresh/.local/share/nvim/site/pack/packer/start/telescope-prosession",
-    url = "https://github.com/egresh/telescope-prosession"
   },
   ["telescope-ui-select.nvim"] = {
     loaded = true,

@@ -2344,6 +2344,39 @@
           "type" : "basic"
         }, {
           "from" : {
+            "key_code" : "s",
+            "modifiers" : {
+              "mandatory" : [ "left_command", "left_control", "left_option", "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Slack'"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "o",
+            "modifiers" : {
+              "mandatory" : [ "left_command", "left_control", "left_option", "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Microsoft Outlook'"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "v",
+            "modifiers" : {
+              "mandatory" : [ "left_command", "left_control", "left_option", "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Vivaldi'"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
             "key_code" : "h",
             "modifiers" : {
               "mandatory" : [ "left_command", "left_control", "left_option", "left_shift" ]

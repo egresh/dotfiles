@@ -8,6 +8,9 @@ vim.cmd("colorscheme gruvbox")
 
 -- This is to get python3 working with "danth/pathfinder.vim"
 vim.cmd([[ let g:python3_host_prog = "/Users/egresh/.pyenv/shims/python3" ]])
+
+--require('oleo')
+--require('telescope-prosession')
 require("user/impatient")
 require("user/autocommands")
 require("user/gitsigns")
