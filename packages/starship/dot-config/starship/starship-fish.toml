@@ -1,0 +1,98 @@
+format = """
+$username\
+$hostname\
+$shell\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$ruby\
+$lua\
+$nodejs\
+$line_break\
+$status\
+$cmd_duration\
+$character"""
+
+# Use the color palette
+palette = "dracula"
+
+# Define Dracula color palette
+[palettes.dracula]
+background = "#282a36"
+current_line = "#44475a"
+foreground = "#f8f8f2"
+comment = "#6272a4"
+cyan = "#8be9fd"
+green = "#50fa7b"
+orange = "#ffb86c"
+pink = "#ff79c6"
+purple = "#bd93f9"
+red = "#ff5555"
+yellow = "#f1fa8c"
+
+[line_break]
+disabled = false
+
+[character]
+success_symbol = "[❯](cyan)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](green)"
+
+[cmd_duration]
+format = "[$duration ]($style)"
+style = "bold yellow"
+min_time = 5_000
+
+[directory]
+style = "blue"
+format = "[$path]($style)"
+truncation_length = 10
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = " "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[git_branch]
+style = "bright-black"
+format = '[ \[$branch]($style)'
+
+[git_status]
+style = "bright-black"
+format = '[[[ (*$conflicted$untracked$modified$staged$renamed$deleted)](218)( $ahead_behind$stashed)](blue)\] ]($style)'
+
+[hostname]
+ssh_symbol = '🌐'
+style = 'bold dimmed green'
+format = '[$ssh_symbol$hostname ]($style)'
+
+[lua]
+symbol = "󰽥"
+style = "fg:orange"
+format = '[\[$symbol ($version)\]]($style)'
+
+[nodejs]
+symbol = ""
+style = "fg:orange"
+format = '[\[$symbol ($version)\]]($style)'
+
+[ruby]
+symbol = ""
+style = "fg:orange"
+format = '[\[$symbol ($version)\]]($style)'
+
+[shell]
+fish_indicator = '󰈺 '
+zsh_indicator = '󰰶 '
+disabled = false
+
+[status]
+disabled = false
+style = 'red'
+format = '[\[$common_meaning$signal_name$maybe_int\] ]($style)'
+
+[username]
+format = '[$user](yellow)'
