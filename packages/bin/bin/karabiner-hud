@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+# karabiner-hud — toggle a floating, fuzzy-searchable listing of every Karabiner
+# mapping, so you never have to open the .edn and grep again.
+#
+# Bound to a hotkey (Karabiner: `space` leader + i). The window is a dedicated
+# kitty running `karabiner-cheatsheet --loop`; type to filter, Enter copies the
+# highlighted line to the clipboard, Esc hides it. It lives in OmniWM scratchpad
+# slot $SLOT, so the first summon builds and centres it and every summon after
+# that is an instant show/hide of the same centred window — no reopen, no slide.
+#
+# kitty runs --single-instance so every kitty window shares ONE process / one
+# Cmd-Tab entry. Karabiner runs this with a bare PATH and maybe bash 3.2 — keep
+# it 3.2-safe.
+
+set -u
+
+# Karabiner hands us a bare PATH; kitty's -e child (python3 shebang, fzf) needs
+# a real one.
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
+
+TITLE=karabiner-keys
+SLOT=2
+OMNI=/opt/homebrew/bin/omniwmctl
+KITTY=/opt/homebrew/bin/kitty
+PY=/usr/bin/python3
+SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
+SHEET="$SELF_DIR/karabiner-cheatsheet"
+WIDTH_PCT=46
+HEIGHT_PCT=76
+LOCK=/tmp/karabiner-hud.lock
+
+# Serialize invocations; clear a stale lock from a hard-killed run.
+if [ -d "$LOCK" ] && [ -n "$(find "$LOCK" -prune -mmin +1 2>/dev/null)" ]; then
+  rmdir "$LOCK" 2>/dev/null || true
+fi
+mkdir "$LOCK" 2>/dev/null || exit 0
+trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT
+
+# "<opaque-id>\t<scratchpadIndex|->\t<visible 0|1>" for the popup, else empty.
+hud_window() {
+  "$OMNI" query windows --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    wins = json.load(sys.stdin)["result"]["payload"]["windows"]
+except Exception:
+    wins = []
+for w in wins:
+    if w.get("title") == "'"$TITLE"'":
+        idx = w.get("scratchpadIndex")
+        print("%s\t%s\t%d" % (w.get("id", ""),
+                              "-" if idx is None else idx,
+                              1 if w.get("isVisible") else 0))
+        break
+'
+}
+
+# Keep OmniWM from tiling the popup into the grid: a bundle-id + title rule
+# (specificity 3) beats the generic net.kovidgoyal.kitty rule. Add if missing.
+if ! "$OMNI" query rules --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    rules = json.load(sys.stdin)["result"]["payload"]["rules"]
+except Exception:
+    rules = []
+ok = any((r.get("titleSubstring") or "") == "'"$TITLE"'"
+         and r.get("layout") == "float"
+         and not r.get("assignToWorkspace") for r in rules)
+sys.exit(0 if ok else 1)
+'; then
+  "$OMNI" rule add --bundle-id net.kovidgoyal.kitty \
+    --title-substring "$TITLE" --layout float >/dev/null 2>&1 || true
+fi
+
+geom() {
+  "$OMNI" query displays --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)["result"]["payload"]["displays"][0]["frame"]
+except Exception:
+    d = {"width": 1920, "height": 1080, "x": 0, "y": 0}
+W, H = d["width"], d["height"]
+w = int(W * '"$WIDTH_PCT"' / 100)
+h = int(H * '"$HEIGHT_PCT"' / 100)
+print("%d %d %d %d" % (d.get("x", 0) + (W - w) // 2,
+                       d.get("y", 0) + (H - h) // 2, w, h))
+'
+}
+
+# Snap the window to the centred rect via AX (kitty can't position itself on
+# macOS, and OmniWM drops a new float at its own default spot).
+center_window() {
+  set -- $(geom)
+  [ "$#" -eq 4 ] || return 0
+  /usr/bin/osascript >/dev/null 2>&1 <<OSA || true
+tell application "System Events"
+  repeat 200 times
+    try
+      set p to first process whose name is "kitty"
+      set w to (first window of p whose name is "$TITLE")
+      set position of w to {$1, $2}
+      set size of w to {$3, $4}
+      set position of w to {$1, $2}
+      exit repeat
+    on error
+      delay 0.02
+    end try
+  end repeat
+end tell
+OSA
+}
+
+tab="$(printf '\t')"
+row="$(hud_window)"
+
+if [ -z "$row" ]; then
+  # Cold start: build the window at final size, park it in the slot, reveal it.
+  set -- $(geom)
+  X=${1:-0} Y=${2:-0} W=${3:-1200} H=${4:-900}
+  nohup "$KITTY" --single-instance -T "$TITLE" \
+    -o macos_quit_when_last_window_closed=yes \
+    -o remember_window_size=no \
+    -o "initial_window_width=$W" \
+    -o "initial_window_height=$H" \
+    -o confirm_os_window_close=0 \
+    -o font_size=15 \
+    -e "$SHEET" --loop >/dev/null 2>&1 &
+  disown 2>/dev/null || true
+
+  i=0
+  while [ "$i" -lt 60 ]; do
+    row="$(hud_window)"
+    [ -n "$row" ] && break
+    sleep 0.1
+    i=$((i + 1))
+  done
+  [ -n "$row" ] || exit 0
+fi
+
+wid="${row%%${tab}*}"
+rest="${row#*${tab}}"
+idx="${rest%%${tab}*}"
+
+# Ensure it's parked in slot $SLOT. `scratchpad assign` acts on the focused
+# window, so focus ours first, and only assign when it isn't already in.
+if [ -n "$wid" ] && [ "$idx" != "$SLOT" ]; then
+  j=0
+  while [ "$j" -lt 10 ]; do
+    "$OMNI" window focus "$wid" >/dev/null 2>&1 || true
+    sleep 0.12
+    case "$(hud_window)" in *"${tab}1") break ;; esac
+    j=$((j + 1))
+  done
+  "$OMNI" command scratchpad assign "$SLOT" >/dev/null 2>&1 || true
+  sleep 0.2
+fi
+
+# Flip visibility.
+"$OMNI" command scratchpad toggle "$SLOT" >/dev/null 2>&1 || true
+sleep 0.15
+
+# If this press left it on screen, re-centre (self-heals a clobbered frame).
+case "$(hud_window)" in
+  *"${tab}1") center_window ;;
+esac

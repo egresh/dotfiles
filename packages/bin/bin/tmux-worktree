@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Pick a worktree of the current git repo and switch to its tmux session with sesh.
+# Bound to prefix-C-w in tmux. Worktrees are ordered by when their session was last
+# attached, so the previous one is first and prefix-w Enter toggles between two.
+
+# phase 2 (inside the popup): pick from the saved choices and switch.
+if [ "${1:-}" = --pick ]; then
+  choices=$(cat "$2"); rm -f "$2"
+else
+# phase 1 (run-shell, no popup): build the list, so failures never flash a big popup.
+note() { tmux display-popup -w $((${#1} + 4)) -h 3 -E "printf '\\033[?25l $1'; sleep 1.5"; }
+
+# the active pane (e.g. nvim started in ~) may not be in the repo; use any pane in the window that is
+dir=$(for d in "$(tmux display-message -p '#{pane_current_path}')" $(tmux list-panes -F '#{pane_current_path}'); do
+  git -C "$d" rev-parse --show-toplevel >/dev/null 2>&1 && { echo "$d"; break; }; done)
+[ -n "$dir" ] && cd "$dir" && list=$(workmux list --json 2>/dev/null) || { note "Not in a git repo"; exit 0; }
+
+# Sessions match a worktree by session path OR any pane's cwd (a session started in ~
+# can still be sitting in the repo). handle <TAB> sesh target: the worktree's existing session name (sesh connect <path>
+# won't find workmux's sessions and makes a duplicate), else its path.
+choices=$(jq -r --arg top "$(git rev-parse --show-toplevel)" \
+  --arg cur "$(tmux display-message -p '#{session_name}')" \
+  --arg sessions "$(tmux list-sessions -F '#{session_last_attached}	#{session_path}	#{session_name}'
+    tmux list-panes -a -F '#{session_last_attached}	#{pane_current_path}	#{session_name}')" '
+  ($sessions | split("\n") | map(split("\t") | select(length == 3 and .[2] != $cur)
+    | {t: (.[0] | tonumber? // 0), path: .[1], name: .[2]})) as $ss
+  | [.[] | select(.path != $top) | . as $w
+      | {handle: .branch, path, s: ([$ss[] | select(.path == $w.path)] | max_by(.t))}]
+  | sort_by(-(.s.t // 0))
+  | .[] | [.handle, (.s.name // .path)] | @tsv' <<<"$list")
+[ -n "$choices" ] || { note "No other worktrees"; exit 0; }
+
+f=$(mktemp); echo "$choices" > "$f"
+exec tmux display-popup -E -w 40% "'$0' --pick '$f'"
+fi
+
+handle=$(cut -f1 <<<"$choices" |
+  gum filter --limit 1 --placeholder 'Pick a worktree' --prompt '🌳  ') || exit 0
+
+sesh connect "$(awk -F'\t' -v h="$handle" '$1 == h { print $2 }' <<<"$choices")"

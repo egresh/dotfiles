@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+lazyvim=~/.config/lazyvim
+
+cd $lazyvim
+
+file=$(fd -t f -e lua | lolcat -f |\
+       fzf --border=none \
+           --ansi \
+           --preview='bat --color=always {}')
+
+[ -z $file ] && exit
+
+NVIM_APPNAME=lazyvim nvim ~/.config/lazyvim/$file
+
+cd $OLDPWD

@@ -1,0 +1,5 @@
+#!/usr/bin/env fish
+
+set -x NVIM_APPNAME lazyvim_test
+
+exec nvim $argv

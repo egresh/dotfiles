@@ -1,0 +1,318 @@
+#!/usr/bin/env python3
+"""karabiner-cheatsheet — print (or fuzzy-search) every Karabiner mapping.
+
+Source of truth is the compiled ~/.config/karabiner/karabiner.json that Goku
+regenerates on every save, so this never drifts from the .edn.
+
+Usage:
+  karabiner-cheatsheet          aligned, grouped listing to stdout
+  karabiner-cheatsheet --fzf    pipe the listing through fzf (for the popup)
+"""
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+JSON_PATH = os.path.expanduser("~/.config/karabiner/karabiner.json")
+
+# Launched from Karabiner the PATH is bare, so resolve tools explicitly and hand
+# a real PATH to whatever fzf shells out to.
+BIN_DIRS = ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin")
+RUN_PATH = os.pathsep.join(BIN_DIRS + (os.environ.get("PATH", ""),))
+
+
+def find_bin(name):
+    for d in BIN_DIRS:
+        p = os.path.join(d, name)
+        if os.access(p, os.X_OK):
+            return p
+    return shutil.which(name)
+
+MOD_SYMBOL = {
+    "left_command": "⌘", "right_command": "⌘",
+    "left_control": "⌃", "right_control": "⌃",
+    "left_option": "⌥", "right_option": "⌥",
+    "left_shift": "⇧", "right_shift": "⇧",
+    "fn": "fn", "caps_lock": "⇪",
+}
+MOD_ORDER = ["fn", "⌃", "⌥", "⇧", "⌘", "⇪"]
+
+KEY_PRETTY = {
+    "open_bracket": "[", "close_bracket": "]", "hyphen": "-", "equal_sign": "=",
+    "grave_accent_and_tilde": "`", "spacebar": "space", "return_or_enter": "enter",
+    "delete_or_backspace": "⌫", "delete_forward": "⌦", "escape": "esc",
+    "comma": ",", "period": ".", "slash": "/", "semicolon": ";", "quote": "'",
+    "backslash": "\\", "tab": "tab", "left_arrow": "←", "down_arrow": "↓",
+    "up_arrow": "↑", "right_arrow": "→", "page_up": "PgUp",
+    "page_down": "PgDn", "home": "Home", "end": "End",
+    "left_shift": "⇧", "right_shift": "⇧", "left_control": "⌃",
+    "right_control": "⌃", "left_command": "⌘", "right_command": "⌘",
+    "left_option": "⌥", "right_option": "⌥",
+    "volume_decrement": "🔉", "volume_increment": "🔊", "mute": "🔇",
+}
+
+LAYER_RANK = {"space": 0, "enter": 1}
+
+
+def clean_desc(layer, desc):
+    if not desc:
+        return ""
+    d = re.sub(r"^\s*[A-Za-z_]+-mode[:\s]+", "", desc)
+    d = re.sub(r"^\s*[A-Za-z_]+-mode\b[:\s]*", "", d)
+    return d.strip() or desc.strip()
+
+
+def pretty_key(kc):
+    if kc in KEY_PRETTY:
+        return KEY_PRETTY[kc]
+    if len(kc) == 1:
+        return kc.upper()
+    if kc.startswith("f") and kc[1:].isdigit():
+        return kc.upper()
+    return kc
+
+
+def fmt_chord(frm):
+    mods = frm.get("modifiers") or []
+    if isinstance(mods, dict):
+        mods = mods.get("mandatory", []) or []
+    syms = []
+    for m in mods:
+        s = MOD_SYMBOL.get(m, m)
+        if s not in syms:
+            syms.append(s)
+    syms.sort(key=lambda s: MOD_ORDER.index(s) if s in MOD_ORDER else 99)
+    return "".join(syms) + pretty_key(frm.get("key_code", frm.get("consumer_key_code", "?")))
+
+
+def fmt_to_entry(t):
+    if "shell_command" in t:
+        c = t["shell_command"].strip()
+        c = re.sub(r"^/opt/homebrew/bin/omniwmctl command ", "omniwm ▸ ", c)
+        c = re.sub(r"^/opt/homebrew/bin/hs -c '(.*)'$", r"hammerspoon ▸ \1", c)
+        c = re.sub(r"^open -a '(.*)'$", r"open ▸ \1", c)
+        c = re.sub(r"^/opt/homebrew/bin/tmux ", "tmux ▸ ", c)
+        return c
+    if "key_code" in t or "consumer_key_code" in t:
+        return "send ▸ " + fmt_chord(t)
+    if "set_variable" in t:
+        sv = t["set_variable"]
+        return "set %s=%s" % (sv.get("name"), sv.get("value"))
+    if "select_input_source" in t:
+        return "input-source " + json.dumps(t["select_input_source"])
+    if "software_function" in t:
+        return "software-fn " + json.dumps(t["software_function"])
+    return json.dumps(t)
+
+
+def fmt_action(to):
+    return "  ,  ".join(fmt_to_entry(t) for t in to) if to else ""
+
+
+def layer_of(m):
+    for c in m.get("conditions", []) or []:
+        if c.get("type") == "variable_if":
+            n = c.get("name") or ""
+            if n.endswith("-mode") or n.endswith("-space"):
+                return re.sub(r"-(mode|space)$", "", n) if n.endswith("-mode") else n
+    for c in m.get("conditions", []) or []:
+        if c.get("type") in ("frontmost_application_if", "frontmost_application_unless"):
+            bids = c.get("bundle_identifiers") or []
+            short = "app"
+            if bids:
+                short = re.sub(r".*\\\.", "", bids[0]).rstrip("$").split(".")[-1]
+            return ("@" if c["type"].endswith("_if") else "!@") + short
+    return "main"
+
+
+def is_layer_toggle(m):
+    for t in m.get("to", []) or []:
+        sv = t.get("set_variable") if isinstance(t, dict) else None
+        if sv and str(sv.get("name", "")).endswith(("-mode", "-space")):
+            return True
+    return bool(m.get("to_if_alone")) and any(
+        "set_variable" in t for t in (m.get("to") or [])
+    )
+
+
+def collect():
+    with open(JSON_PATH) as fh:
+        data = json.load(fh)
+    profiles = data.get("profiles", [])
+    prof = next((p for p in profiles if p.get("selected")), profiles[0])
+    rows = []
+    for rule in prof.get("complex_modifications", {}).get("rules", []):
+        desc = rule.get("description", "")
+        for m in rule.get("manipulators", []):
+            if m.get("type") != "basic":
+                continue
+            if is_layer_toggle(m):
+                continue
+            frm = m.get("from") or {}
+            if "key_code" not in frm and "consumer_key_code" not in frm and "pointing_button" not in frm:
+                continue
+            layer = layer_of(m)
+            to = m.get("to") or m.get("to_if_alone") or []
+            raw = to[0]["shell_command"] if (
+                len(to) == 1 and isinstance(to[0], dict)
+                and "shell_command" in to[0]) else ""
+            rows.append({
+                "layer": layer,
+                "chord": fmt_chord(frm),
+                "action": fmt_action(to),
+                "desc": clean_desc(layer, desc),
+                "raw": raw,
+            })
+    seen, uniq = set(), []
+    for r in rows:
+        k = (r["layer"], r["chord"], r["action"])
+        if k in seen:
+            continue
+        seen.add(k)
+        uniq.append(r)
+    return uniq
+
+
+def layer_rank(layer):
+    if layer in LAYER_RANK:
+        return LAYER_RANK[layer]
+    if layer == "main":
+        return 8
+    if layer.startswith(("@", "!")):
+        return 9
+    return 2  # other simlayers
+
+
+def sort_key(r):
+    lr = layer_rank(r["layer"])
+    chord = r["chord"]
+    has_mod = any(s in chord for s in MOD_SYMBOL.values())
+    base = chord.lstrip("".join(set(MOD_SYMBOL.values())))
+    digit = base[:1].isdigit()
+    return (lr, r["layer"], digit, has_mod, base.lower(), chord)
+
+
+def lines(rows):
+    rows = sorted(rows, key=sort_key)
+    cw = max((len(r["chord"]) for r in rows), default=4)
+    aw = max((len(r["action"]) for r in rows), default=4)
+    aw = min(aw, 48)
+    out = []
+    last = object()
+    for r in rows:
+        if r["layer"] != last:
+            if out:
+                out.append("")
+            out.append("── %s ──" % r["layer"])
+            last = r["layer"]
+        act = r["action"]
+        if len(act) > aw:
+            act = act[: aw - 1] + "…"
+        line = "  %-*s  %-*s" % (cw, r["chord"], aw, act)
+        if r["desc"]:
+            line += "  · " + r["desc"]
+        out.append(line.rstrip())
+    return out
+
+
+def flat_lines(rows):
+    """One line per mapping: "<display>\t<raw-shell-command>".
+
+    fzf shows/searches only field 1 and echoes the whole line on accept, so the
+    picker can run field 2 when it's a real command. Non-runnable rows (key
+    sends, remaps) carry no tab.
+    """
+    rows = sorted(rows, key=sort_key)
+    lw = max((len(r["layer"]) for r in rows), default=5)
+    cw = max((len(r["chord"]) for r in rows), default=4)
+    out = []
+    for r in rows:
+        seg = "%-*s  %-*s  %s" % (lw, r["layer"], cw, r["chord"], r["action"])
+        if r["desc"]:
+            seg += "  · " + r["desc"]
+        if r.get("raw"):
+            seg += "\t" + r["raw"]
+        out.append(seg)
+    return out
+
+
+SCRATCH_SLOT = "2"  # OmniWM scratchpad slot the karabiner-hud popup lives in
+
+
+def run_picker():
+    """Show the mappings in fzf once.
+
+    Returns the accepted line ("<display>\t<raw>"), "" if dismissed, or None if
+    there was no interactive terminal (list just printed).
+    """
+    body = "\n".join(flat_lines(collect()))
+    env = dict(os.environ, PATH=RUN_PATH, FZF_DEFAULT_OPTS="",
+               FZF_DEFAULT_COMMAND="")
+    fzf_bin = find_bin("fzf")
+    if fzf_bin and sys.stdin.isatty():
+        r = subprocess.run([
+            fzf_bin, "--reverse", "--no-sort", "--cycle", "--height=100%",
+            "--border=rounded", "--margin=1,2", "--padding=0,1", "--info=inline",
+            "--delimiter=\t", "--with-nth=1", "--nth=1",
+            "--prompt=  karabiner  ", "--pointer=▸",
+            "--header=enter runs it · ctrl-y copies the command · esc hides",
+            "--bind=ctrl-y:execute-silent(printf %s {2} | pbcopy)",
+            "--bind=esc:abort",
+        ], input=body, text=True, env=env, capture_output=True)
+        return (r.stdout or "").strip("\n")
+    pager = find_bin("less")
+    if pager and sys.stdin.isatty():
+        subprocess.run([pager, "-R", "-+F", "-+X"], input=body, text=True,
+                       env=env)
+        return ""
+    print(body)
+    return None
+
+
+def raw_of(line):
+    return line.split("\t", 1)[1].strip() if line and "\t" in line else ""
+
+
+def main():
+    args = sys.argv[1:]
+    if "--list" in args:
+        print("\n".join(flat_lines(collect())))
+        return
+    run_env = dict(os.environ, PATH=RUN_PATH)
+    if "--loop" in args:
+        # Resident popup: after each dismissal hide the OmniWM scratchpad and
+        # sit on a fresh picker, so the next summon is instant — the window is
+        # already built and centred. Rebuilding the list each round also picks
+        # up karabiner.edn changes for free. If a line was accepted, hide first
+        # (so focus returns to the real window) then run its command.
+        omni = find_bin("omniwmctl") or "/opt/homebrew/bin/omniwmctl"
+        while True:
+            pick = run_picker()
+            if pick is None:
+                return
+            subprocess.run(
+                [omni, "command", "scratchpad", "toggle", SCRATCH_SLOT],
+                env=run_env, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL)
+            raw = raw_of(pick)
+            if raw:
+                time.sleep(0.18)
+                subprocess.run(raw, shell=True, env=run_env,
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL)
+            time.sleep(0.1)
+        return
+    if "--fzf" in args:
+        raw = raw_of(run_picker())
+        if raw:
+            subprocess.run(raw, shell=True, env=run_env)
+        return
+    print("\n".join(lines(collect())))
+
+
+if __name__ == "__main__":
+    main()

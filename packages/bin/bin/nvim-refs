@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# nvim-refs [--visible] — fzf the existing path[:line] refs printed in a
+# tmux pane (e.g. Claude's) and open the pick in that worktree's nvim. The socket
+# key must match autocmds.lua. --visible scans only what's on screen, not scrollback.
+set -u
+# only refs Claude Code renders as inline code (colour 38;5;153, or ANSI 94/34; backticks are hidden), not every filename-looking string
+
+scrollback=(-S -3000)
+[ "${1:-}" = --visible ] && scrollback=()
+
+pane="$(tmux display-message -p '#{pane_id}')"
+dir="$(tmux display-message -p '#{pane_current_path}')"
+root="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" || root="$dir"
+sockdir="${NVIM_REFS_SOCKDIR:-/tmp}"  # override is for tests
+sock="$sockdir/nvim-lazyvim-${root//[^A-Za-z0-9]/_}.sock"
+fallback=""
+if [ ! -S "$sock" ]; then  # nvim started elsewhere (e.g. ~): candidate is the only live one
+  socks=("$sockdir"/nvim-lazyvim-*.sock)
+  live=(); for f in "${socks[@]}"; do [ -S "$f" ] && live+=("$f"); done
+  [ ${#live[@]} -eq 1 ] && fallback="${live[0]}"
+fi
+
+# small centered popup; this popup is closing, so open it once it's gone
+note() { tmux run-shell -b "sleep 0.15; tmux display-popup -w $((${#1} + 4)) -h 3 -E \"printf '\\033[?25l $1'; sleep 1.5\""; }
+
+abs() { case "$1" in /*) echo "$1";; "~/"*) echo "$HOME/${1#"~/"}";; *) echo "$root/$1";; esac; }
+
+# phase 1 (run-shell, no popup): scan, so an empty result never flashes the big popup.
+# phase 2 (inside the popup, NVIM_REFS_CANDS=file): just fzf the saved candidates.
+if [ -n "${NVIM_REFS_CANDS:-}" ]; then
+  cands="$(cat "$NVIM_REFS_CANDS")"; rm -f "$NVIM_REFS_CANDS"
+else
+cands="$(for p in $(tmux list-panes -t "$pane" -F '#{pane_id}'); do tmux capture-pane -p -e -J ${scrollback[@]+"${scrollback[@]}"} -t "$p"; done \
+  | perl -ne 'print "$1\n" while /\e\[(?:38;5;153|94|34)m(.*?)\e\[39m/g' \
+  | grep -oE '~?[A-Za-z0-9_./-]+(:[0-9]+)?' \
+  | awk '{a[NR]=$0} END{for(i=NR;i>0;i--)print a[i]}' \
+  | awk '!seen[$0]++' \
+  | while IFS= read -r ref; do [ -f "$(abs "${ref%:*}")" ] && echo "$ref"; done)"
+if [ -z "$cands" ]; then
+  [ ${#scrollback[@]} -eq 0 ] && msg="No path refs on screen (prefix+G searches history)" || msg="No path refs found"
+  note "$msg"
+  exit 0
+fi
+f="$(mktemp)"; echo "$cands" > "$f"
+exec tmux display-popup -E -w 60% -h 50% "NVIM_REFS_CANDS='$f' '$0' $*"
+fi
+
+sel="$(echo "$cands" | FZF_DEFAULT_OPTS= fzf --prompt 'ref> ' --no-sort)" && [ -n "$sel" ] || exit 0
+
+line="${sel##*:}"; [ "$line" = "$sel" ] && line=1  # bare filename ref, no :line
+
+# use the lone live nvim only if it is actually working on this file's tree (its cwd contains it);
+# otherwise it belongs to another repo/worktree and the file must not land there
+if [ ! -S "$sock" ] && [ -n "$fallback" ]; then
+  cwd="$(nvim --server "$fallback" --remote-expr 'getcwd()' 2>/dev/null </dev/null)"
+  case "$(abs "${sel%:*}")" in "$cwd"/*) sock="$fallback";; esac
+fi
+
+# no nvim listening for this repo: start one in a new window (it registers its own socket)
+if [ ! -S "$sock" ]; then
+  exec tmux new-window -c "$root" "'$HOME/bin/sl' +$line '$(abs "${sel%:*}")'"
+fi
+
+# schedule so the RPC returns at once instead of blocking on slow BufRead/LSP autocmds
+out="$(nvim --server "$sock" --remote-expr "luaeval('(function(a) vim.schedule(function() vim.cmd.edit(vim.fn.fnameescape(a[1])) vim.api.nvim_win_set_cursor(0, {math.min(a[2], vim.api.nvim_buf_line_count(0)), 0}) vim.cmd(\"normal! zz\") end) return 1 end)(_A)', ['$(abs "${sel%:*}")', $line])" 2>&1 </dev/null)" || { note "nvim unreachable: ${sock##*/}"; exit 0; }
+
+# the nvim may live in another window or session: walk its parent processes up to the
+# tmux pane that owns it, then switch there so the opened file is actually in view
+p="$(nvim --server "$sock" --remote-expr 'getpid()' 2>/dev/null </dev/null)"
+panes="$(tmux list-panes -a -F '#{pane_pid} #{pane_id}')"
+while [ -n "$p" ] && [ "$p" -gt 1 ]; do
+  target="$(echo "$panes" | awk -v p="$p" '$1==p{print $2}')"
+  [ -n "$target" ] && break
+  p="$(ps -o ppid= -p "$p" | tr -d ' ')"
+done
+if [ -n "${target:-}" ]; then
+  sess="$(tmux display-message -p -t "$target" '#{session_name}')"
+  tmux switch-client -t "=$sess:" \; select-window -t "$target" \; select-pane -t "$target"
+fi

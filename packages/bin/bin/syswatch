@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+# syswatch — toggle a floating syswatch HUD via an OmniWM scratchpad slot.
+#
+# Bound to a hotkey (Karabiner: `space` leader + s). First press launches a
+# dedicated kitty window running the `syswatch` TUI and parks it in scratchpad
+# slot $SLOT (which removes it from every workspace); each press after that
+# shows or hides it as a floating overlay on whatever workspace you're on.
+#
+# kitty runs --single-instance (also via ~/.config/kitty/
+# macos-launch-services-cmdline) so every kitty window shares ONE process and
+# ONE Cmd-Tab entry, hidden scratchpad window included.
+#
+# Karabiner runs this with a bare PATH and maybe system bash 3.2 — keep it
+# 3.2-safe (no mapfile / associative arrays).
+
+set -u
+
+TITLE=syswatch
+SLOT=1
+OMNI=/opt/homebrew/bin/omniwmctl
+KITTY=/opt/homebrew/bin/kitty
+WATCH=/opt/homebrew/bin/syswatch
+WATCH_ARGS="--dense"                    # every subsystem on one screen
+PY=/usr/bin/python3
+LOCK=/tmp/syswatch.lock
+
+# Serialize invocations; clear a stale lock from a hard-killed run.
+if [ -d "$LOCK" ] && [ -n "$(find "$LOCK" -prune -mmin +1 2>/dev/null)" ]; then
+  rmdir "$LOCK" 2>/dev/null || true
+fi
+mkdir "$LOCK" 2>/dev/null || exit 0
+trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT
+
+query_windows() { "$OMNI" query windows --format json 2>/dev/null; }
+
+# "<opaque-id>\t<scratchpadIndex|->\t<focused 0|1>" for the syswatch window,
+# empty when there is none.
+syswatch_window() {
+  query_windows | "$PY" -c '
+import json, sys
+try:
+    wins = json.load(sys.stdin)["result"]["payload"]["windows"]
+except Exception:
+    wins = []
+for w in wins:
+    if w.get("title") == "syswatch":
+        idx = w.get("scratchpadIndex")
+        print("%s\t%s\t%d" % (w.get("id", ""),
+                              "-" if idx is None else idx,
+                              1 if w.get("isFocused") else 0))
+        break
+'
+}
+
+# Ensure OmniWM keeps the syswatch window floating. The scratchpad sets a
+# force-float override, but on a Dwindle workspace the grid can still grab it
+# during a summon; a bundle-id + title rule (specificity 3, beats the generic
+# net.kovidgoyal.kitty rule) pins it. Drop any stale assign-to-workspace rule.
+"$OMNI" query rules --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    rules = json.load(sys.stdin)["result"]["payload"]["rules"]
+except Exception:
+    rules = []
+have_float = False
+for r in rules:
+    if (r.get("titleSubstring") or "") == "syswatch":
+        if r.get("layout") == "float" and not r.get("assignToWorkspace"):
+            have_float = True
+        else:
+            print("remove\t" + r.get("id", ""))
+if not have_float:
+    print("add\t")
+' | while IFS="$(printf '\t')" read -r op rid; do
+  case "$op" in
+    remove) [ -n "$rid" ] && "$OMNI" rule remove "$rid" >/dev/null 2>&1 || true ;;
+    add) "$OMNI" rule add --bundle-id net.kovidgoyal.kitty \
+           --title-substring "$TITLE" --layout float >/dev/null 2>&1 || true ;;
+  esac
+done
+
+row="$(syswatch_window)"
+
+if [ -z "$row" ]; then
+  nohup "$KITTY" --single-instance -T "$TITLE" \
+    -o macos_quit_when_last_window_closed=yes \
+    -o remember_window_size=no \
+    -o initial_window_width=160c \
+    -o initial_window_height=50c \
+    -o confirm_os_window_close=0 \
+    -o font_size=13 \
+    -e "$WATCH" $WATCH_ARGS >/dev/null 2>&1 &
+  disown 2>/dev/null || true
+  i=0
+  while [ "$i" -lt 40 ]; do
+    sleep 0.15
+    row="$(syswatch_window)"
+    [ -n "$row" ] && break
+    i=$((i + 1))
+  done
+fi
+
+tab="$(printf '\t')"
+wid="${row%%${tab}*}"
+rest="${row#*${tab}}"
+idx="${rest%%${tab}*}"
+
+# Park it in slot $SLOT if it isn't already. `scratchpad assign` acts on the
+# focused window and toggles membership, so focus ours first and only call it
+# when the window is not already in the slot.
+assigned=0
+if [ -n "$wid" ] && [ "$idx" != "$SLOT" ]; then
+  j=0
+  while [ "$j" -lt 10 ]; do
+    "$OMNI" window focus "$wid" >/dev/null 2>&1 || true
+    sleep 0.15
+    focused="$(syswatch_window)"
+    case "$focused" in
+      *"${tab}1") break ;;
+    esac
+    j=$((j + 1))
+  done
+  "$OMNI" command scratchpad assign "$SLOT" >/dev/null 2>&1 || true
+  assigned=1
+  sleep 0.2
+fi
+
+# Show / hide.
+"$OMNI" command scratchpad toggle "$SLOT" >/dev/null 2>&1 || true
+sleep 0.2
+
+# OmniWM has no scratchpad-geometry config, and the Dwindle grid can shrink the
+# window when it's revealed there. Whenever this press left it visible, size it
+# to WIDTH_PCT x HEIGHT_PCT of the display and centre it via AX — cheap, and it
+# self-heals a frame the grid clobbered on an earlier summon.
+WIDTH_PCT=72
+HEIGHT_PCT=82
+if "$OMNI" query windows --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    wins = json.load(sys.stdin)["result"]["payload"]["windows"]
+except Exception:
+    wins = []
+sys.exit(0 if any(w.get("title") == "syswatch" and w.get("isVisible") for w in wins) else 1)
+'; then
+  geom="$("$OMNI" query displays --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    ds = json.load(sys.stdin)["result"]["payload"]["displays"]
+    d = next((x for x in ds if x.get("isCurrent")), ds[0])["frame"]
+except Exception:
+    sys.exit(0)
+W, H = d["width"], d["height"]
+w = int(W * '"$WIDTH_PCT"' / 100)
+h = int(H * '"$HEIGHT_PCT"' / 100)
+print("%d %d %d %d" % (d.get("x", 0) + (W - w) // 2, d.get("y", 0) + (H - h) // 2, w, h))
+')"
+  if [ -n "$geom" ]; then
+    set -- $geom
+    /usr/bin/osascript >/dev/null 2>&1 <<OSA || true
+tell application "System Events"
+  tell (first process whose name is "kitty")
+    repeat with win in windows
+      if name of win is "$TITLE" then
+        set size of win to {$3, $4}
+        set position of win to {$1, $2}
+      end if
+    end repeat
+  end tell
+end tell
+OSA
+  fi
+fi

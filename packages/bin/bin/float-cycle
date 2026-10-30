@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# float-cycle — move focus to the next visible floating window, wrapping around.
+# Fills the gap left by OmniWM's directional focus, which skips floats.
+# Bound to Karabiner: `enter` leader + t.
+
+set -u
+
+OMNI=/opt/homebrew/bin/omniwmctl
+PY=/usr/bin/python3
+
+next_id="$("$OMNI" query windows --floating --visible --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    wins = json.load(sys.stdin)["result"]["payload"]["windows"]
+except Exception:
+    wins = []
+ids = [w.get("id") for w in wins if w.get("id")]
+if not ids:
+    sys.exit(0)
+cur = next((i for i, w in enumerate(wins) if w.get("isFocused")), -1)
+print(ids[(cur + 1) % len(ids)])
+')"
+
+[ -n "$next_id" ] && "$OMNI" window focus "$next_id" >/dev/null 2>&1 || true

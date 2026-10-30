@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# require 'pry'
+# require 'pry-byebug'
+
+key_pattern = ENV["HOME"] + "/.ssh/*.pub"
+
+string = "ssh-add "
+
+Dir.glob(key_pattern).reverse.each do |key|
+  key[-4..-1] = ''
+  string += "#{key} "
+end
+
+`#{string}`

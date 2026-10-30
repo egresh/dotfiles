@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# float-center — rescue the focused window: float it if it's tiled, then move it
+# somewhere reachable — horizontally centred, top edge clear of the bar, height
+# clamped to fit. Keeps the window's own width/height otherwise.
+#
+# OmniWM has no command to position a floating window, so this drives it via the
+# Accessibility API (System Events). Bound to Karabiner: `enter` leader + e.
+#
+# Karabiner runs this with a bare PATH and maybe system bash 3.2 — keep it
+# 3.2-safe.
+
+set -u
+
+OMNI=/opt/homebrew/bin/omniwmctl
+PY=/usr/bin/python3
+BAR_CLEAR=70          # minimum px from the top of the screen for the titlebar
+
+# app<TAB>mode<TAB>x<TAB>y<TAB>w<TAB>h for the focused window
+row="$("$OMNI" query windows --focused --format json 2>/dev/null | "$PY" -c '
+import json, sys
+try:
+    w = json.load(sys.stdin)["result"]["payload"]["windows"][0]
+    f = w["frame"]
+    print("%s\t%s\t%d\t%d\t%d\t%d" % (
+        (w.get("app") or {}).get("name") or "", w.get("mode") or "",
+        f["x"], f["y"], f["width"], f["height"]))
+except Exception:
+    pass
+')"
+[ -n "$row" ] || exit 0
+
+tab="$(printf '\t')"
+app="$(printf '%s' "$row" | cut -d"$tab" -f1)"
+mode="$(printf '%s' "$row" | cut -d"$tab" -f2)"
+ww="$(printf '%s' "$row" | cut -d"$tab" -f5)"
+wh="$(printf '%s' "$row" | cut -d"$tab" -f6)"
+[ -n "$app" ] || exit 0
+
+# A tiled window would just snap back — float it first.
+if [ "$mode" = "tiling" ]; then
+  "$OMNI" command toggle-focused-window-floating >/dev/null 2>&1 || true
+  sleep 0.2
+fi
+
+geom="$("$OMNI" query displays --format json 2>/dev/null | "$PY" - "$ww" "$wh" "$BAR_CLEAR" <<'PYEOF'
+import json, sys
+ww, wh, bar = (int(x) for x in sys.argv[1:4])
+try:
+    d = json.load(sys.stdin)["result"]["payload"]["displays"][0]["frame"]
+except Exception:
+    sys.exit(0)
+W, H, DX, DY = d["width"], d["height"], d.get("x", 0), d.get("y", 0)
+wh = min(wh, H - bar - 20)
+ww = min(ww, W - 40)
+x = DX + (W - ww) // 2
+y = DY + max(bar, (H - wh) // 2)
+print("%d %d %d %d" % (x, y, ww, wh))
+PYEOF
+)"
+[ -n "$geom" ] || exit 0
+set -- $geom
+
+/usr/bin/osascript >/dev/null 2>&1 <<OSA || true
+tell application "System Events"
+  tell (first process whose name is "$app")
+    set win to item 1 of windows
+    set size of win to {$3, $4}
+    set position of win to {$1, $2}
+  end tell
+end tell
+OSA
