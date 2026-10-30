@@ -1,8 +1,12 @@
 #!/bin/sh
-# Link every package, then do what stow can't: fish plugins, generated completions, tmux plugins.
+# Install the Brewfile, link every package, then do what stow can't: fish plugins, generated
+# completions, tmux plugins, a first tinty theme.
 # Safe to re-run; re-run after upgrading sesh/tinty/omniwmctl to refresh completions.
 set -eu
 cd "$(dirname "$0")"
+
+command -v brew >/dev/null 2>&1 || { echo "Homebrew not found: install it first (https://brew.sh)" >&2; exit 1; }
+brew bundle install --no-upgrade
 
 for dir in packages/*/; do stow "$(basename "$dir")"; done
 
@@ -28,3 +32,8 @@ gen omniwmctl omniwmctl completion fish
 tpm=${XDG_CONFIG_HOME:-$HOME/.config}/tmux/plugins/tpm
 [ -d "$tpm" ] || git clone -q https://github.com/tmux-plugins/tpm "$tpm"
 "$tpm/bin/install_plugins"
+
+# tinty starts with no schemes or theme; apply via fish so its wrapper runs apply-extras
+tinty sync
+tinty current >/dev/null 2>&1 ||
+  fish -c "tinty apply $(tinty config | sed -n 's/^default-scheme = "\(.*\)"/\1/p')"

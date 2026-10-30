@@ -1,9 +1,11 @@
 #!/bin/sh
-# Run after ./bootstrap.sh on a new machine: did fish and tmux end up fully set up?
+# Run after ./bootstrap.sh on a new machine: did Homebrew, fish, tmux and tinty end up fully set up?
 # (test.sh is hermetic; this checks the real HOME, including what bootstrap fetched.)
 cd "$(dirname "$0")" || exit 1
 rc=0
 bad() { echo "FAIL $*"; rc=1; }
+
+brew bundle check --no-upgrade >/dev/null 2>&1 || bad "Brewfile is not fully installed"
 
 fish -c 'functions -q fisher' || bad "fisher is not installed"
 
@@ -22,6 +24,8 @@ for t in sesh tinty omniwmctl workmux mise; do
 done
 
 [ -x "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/plugins/tpm/tpm" ] || bad "TPM is not installed"
+
+tinty current >/dev/null 2>&1 || bad "no tinty theme applied"
 
 [ $rc -eq 0 ] && echo ok
 exit $rc
