@@ -1,0 +1,18 @@
+---
+nerdfont: true
+mode: session
+window_prefix: "{project}/"
+worktree_dir: "~/.workmux/{project}__worktrees"
+base_branch: auto
+theme:
+  scheme: lasergrid
+  custom:
+    accent: "#0066ff"
+    success: "#33ff00"
+    warning: "#ff0099"
+    danger: "#ff0000"
+    current_row_bg: "#1f5a8a"
+    current_worktree_fg: "#ffffff"
+    highlight_row_bg: "#243b52"
+    text: "#b8c7d6"
+    dimmed: "#4f6070"
