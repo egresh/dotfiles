@@ -1,0 +1,53 @@
+#:schema https://github.com/joshmedeski/sesh/raw/main/sesh.schema.json
+sort_order = [
+  "tmux",
+  "config",
+  "tmuxinator",
+  "zoxide"
+]
+
+[[session]]
+name = "fish config"
+path = "~/.config/fish"
+startup_command = "exec ~/bin/sl config.fish"
+alias = "fi"
+
+[[session]]
+name = "lazy config"
+path = "~/.config/lazyvim"
+startup_command = "exec ~/bin/sl init.lua"
+alias = "lv"
+
+[[session]]
+name = "sesh config"
+path = "~/.config/sesh"
+startup_command = "exec ~/bin/sl sesh.toml"
+alias = "se"
+
+[[session]]
+name = "tmux config"
+path = "~/.config/tmux"
+startup_command = "exec ~/bin/sl tmux.conf"
+alias = "tm"
+
+[[session]]
+name = "omniwm config"
+path = "~/.config/omniwm"
+startup_command = "exec ~/bin/sl settings.toml"
+alias = "om"
+
+[[session]]
+name = "karabiner config"
+path = "~/.config/karabiner"
+startup_command = "exec ~/bin/sl karabiner.edn"
+alias = "ka"
+
+[[session]]
+name = "nushell config"
+path = "~/.config/nushell"
+startup_command = "exec ~/bin/sl -O env.nu config.nu"
+alias = "nu"
+
+[tui]
+show_windows = false
+preview = false
