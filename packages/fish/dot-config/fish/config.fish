@@ -2,7 +2,7 @@
 fish_add_path --move --path /opt/homebrew/bin /opt/homebrew/sbin
 
 # Add at the bottom
-fish_add_path --path --append $HOME/dev/dots/bin $HOME/.local/bin
+fish_add_path --path --append $HOME/bin $HOME/.local/bin
 
 set -x EDITOR $HOME/bin/sl
 set -x LANG "en_US.UTF-8"
@@ -20,7 +20,7 @@ set -x XDG_STATE_HOME $HOME/.local/state
 
 set -x _FASD_DATA $HOME/.config/fasd/fasd_data_file
 set -x GOKU_EDN_CONFIG_FILE $XDG_CONFIG_HOME/karabiner/karabiner.edn
-set -x LUA_PATH "$HOME/dev/lua/?/init.lua;$HOME/dev/dots/lua/?/init.lua;$HOME/dev/lua/?.lua;;"
+set -x LUA_PATH "$HOME/dev/lua/?/init.lua;$HOME/dev/lua/?.lua;;"
 set -x PSQL_PAGER 'pspg -X -b -s 19'
 set -x SSLKEYLOGFILE "$HOME/tmp/ssl_key_logfile"
 set -x KITTY_CONFIG_DIRECTORY "$XDG_CONFIG_HOME/kitty"
@@ -28,7 +28,6 @@ set -x EZA_ICONS_AUTO TRUE
 set -x RIPGREP_CONFIG_PATH ~/.config/ripgrep/ripgrep.conf
 set -x STARSHIP_CONFIG $HOME/.config/starship/starship-fish.toml
 set -x EZA_CONFIG_DIR ~/.config/eza
-set -x DOTFILES "$HOME/dev/dots"
 set -x TINTED_SHELL_ENABLE_BASE16_VARS 1
 set -x TINTED_SHELL_ENABLE_BASE24_VARS 1
 
