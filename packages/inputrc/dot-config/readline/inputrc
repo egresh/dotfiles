@@ -1,0 +1,12 @@
+set editing-mode vi
+
+TAB: menu-complete
+$if mode=vi
+   set keymap vi-insert
+   "jk": vi-movement-mode
+   "\C-n": next-history
+   "\C-p": previous-history
+   set keymap vi-command
+   "j": next-history
+   "k": previous-history
+$endif

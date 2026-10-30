@@ -10,6 +10,9 @@ brew bundle install --no-upgrade
 
 for dir in packages/*/; do stow "$(basename "$dir")"; done
 
+# psql won't create the directory its HISTFILE points into
+mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/psql"
+
 # Runtimes first: the tinty step below needs ruby. graphify can't be in the Brewfile because uv comes from mise.
 mise install
 mise exec -- uv tool install graphifyy

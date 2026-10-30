@@ -1,0 +1,14 @@
+\set HISTFILE ~/.local/state/psql/psql_history- :USER - :DBNAME
+\set PROMPT1 '%n@%M:%>%x %/# '
+\set PROMPT2 ''
+
+-- upper, lower, preserve-upper, preserve-lower
+\set COMP_KEYWORD_CASE upper
+
+\setenv PAGER pspg
+\pset border 2
+\pset linestyle unicode
+\pset null '(null)'
+\pset format wrapped
+\timing
+\encoding unicode

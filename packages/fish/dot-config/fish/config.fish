@@ -22,6 +22,8 @@ set -x _FASD_DATA $HOME/.config/fasd/fasd_data_file
 set -x GOKU_EDN_CONFIG_FILE $XDG_CONFIG_HOME/karabiner/karabiner.edn
 set -x LUA_PATH "$HOME/dev/lua/?/init.lua;$HOME/dev/lua/?.lua;;"
 set -x PSQL_PAGER 'pspg -X -b -s 19'
+set -x PSQLRC $XDG_CONFIG_HOME/psql/psqlrc
+set -x INPUTRC $XDG_CONFIG_HOME/readline/inputrc
 set -x SSLKEYLOGFILE "$HOME/tmp/ssl_key_logfile"
 set -x KITTY_CONFIG_DIRECTORY "$XDG_CONFIG_HOME/kitty"
 set -x EZA_ICONS_AUTO TRUE
