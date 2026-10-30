@@ -1,5 +1,5 @@
 #!/bin/sh
-# Run after ./bootstrap.sh on a new machine: did fish end up fully set up?
+# Run after ./bootstrap.sh on a new machine: did fish and tmux end up fully set up?
 # (test.sh is hermetic; this checks the real HOME, including what bootstrap fetched.)
 cd "$(dirname "$0")" || exit 1
 rc=0
@@ -20,6 +20,8 @@ for t in sesh tinty omniwmctl workmux mise; do
              test -s $d/$argv[1].fish; and exit 0
            end; exit 1' "$t" || bad "no fish completion file for $t"
 done
+
+[ -x "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/plugins/tpm/tpm" ] || bad "TPM is not installed"
 
 [ $rc -eq 0 ] && echo ok
 exit $rc

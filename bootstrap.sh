@@ -1,5 +1,5 @@
 #!/bin/sh
-# Link every package, then do what stow can't: fish plugins and generated completions.
+# Link every package, then do what stow can't: fish plugins, generated completions, tmux plugins.
 # Safe to re-run; re-run after upgrading sesh/tinty/omniwmctl to refresh completions.
 set -eu
 cd "$(dirname "$0")"
@@ -23,3 +23,8 @@ gen() {
 gen sesh sesh completion fish
 gen tinty tinty generate-completion fish
 gen omniwmctl omniwmctl completion fish
+
+# TPM can't install itself; once cloned it installs the plugins tmux.conf lists
+tpm=${XDG_CONFIG_HOME:-$HOME/.config}/tmux/plugins/tpm
+[ -d "$tpm" ] || git clone -q https://github.com/tmux-plugins/tpm "$tpm"
+"$tpm/bin/install_plugins"
