@@ -1,11 +1,14 @@
 #!/bin/sh
-# Run after ./bootstrap.sh on a new machine: did Homebrew, fish, tmux and tinty end up fully set up?
+# Run after ./bootstrap.sh on a new machine: did Homebrew, mise, fish, tmux and tinty end up fully set up?
 # (test.sh is hermetic; this checks the real HOME, including what bootstrap fetched.)
 cd "$(dirname "$0")" || exit 1
 rc=0
 bad() { echo "FAIL $*"; rc=1; }
 
 brew bundle check --no-upgrade >/dev/null 2>&1 || bad "Brewfile is not fully installed"
+
+[ -z "$(mise ls --missing 2>/dev/null)" ] || bad "mise tools are missing"
+mise exec -- uv tool list 2>/dev/null | grep -q '^graphifyy ' || bad "graphify is not installed"
 
 fish -c 'functions -q fisher' || bad "fisher is not installed"
 

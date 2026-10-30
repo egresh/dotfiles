@@ -1,0 +1,7 @@
+[tools]
+# for jruby
+java = "21"
+node = "latest"
+python = "latest"
+uv = "latest"
+ruby = { version = "latest", postinstall = "gem install rubocop pry ruby-lsp ruby-lsp-rails ffi" }

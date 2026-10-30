@@ -1,0 +1,6 @@
+ignored_config_paths = [
+  "/Volumes/1TB SSD 1/Users/egresh/.config/mise/config.toml",
+  "/Volumes/2 TB SSD/Users/egresh/.config/mise/config.toml",
+  "~/dev/ruby/ruby_koans/.tool-versions",
+  "~/dev/new_dots/packages/mise/dot-config/mise/config.toml"
+]

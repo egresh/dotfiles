@@ -1,6 +1,6 @@
 #!/bin/sh
-# Install the Brewfile, link every package, then do what stow can't: fish plugins, generated
-# completions, tmux plugins, a first tinty theme.
+# Install the Brewfile, link every package, then do what stow can't: mise tools, fish plugins,
+# generated completions, tmux plugins, a first tinty theme.
 # Safe to re-run; re-run after upgrading sesh/tinty/omniwmctl to refresh completions.
 set -eu
 cd "$(dirname "$0")"
@@ -9,6 +9,10 @@ command -v brew >/dev/null 2>&1 || { echo "Homebrew not found: install it first 
 brew bundle install --no-upgrade
 
 for dir in packages/*/; do stow "$(basename "$dir")"; done
+
+# Runtimes first: the tinty step below needs ruby. graphify can't be in the Brewfile because uv comes from mise.
+mise install
+mise exec -- uv tool install graphifyy
 
 # fisher bootstraps itself, then installs everything listed in fish_plugins
 fish -c 'type -q fisher; or curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; fisher update'
