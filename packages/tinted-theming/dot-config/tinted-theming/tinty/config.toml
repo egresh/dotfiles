@@ -1,0 +1,62 @@
+# Global settings
+shell = "fish -c '{}'"
+default-scheme = "base24-encom"
+
+# `tinty cycle` walks this ring (replaces the removed `preferred-schemes`).
+default-cycle-ring = "default"
+
+[[rings]]
+name = "default"
+schemes = ["base24-encom", "base16-gruvbox-dark", "base16-gruvbox-light", "base16-github-dark"]
+
+### KITTY
+[[items]]
+path = "https://github.com/tinted-theming/tinted-terminal"
+name = "tinted-terminal"
+themes-dir = "themes/kitty"
+supported-systems = ["base16", "base24"]
+hook = '''
+echo "Setting up kitty..."
+set config_file ~/.local/share/tinted-theming/tinty/tinted-terminal-themes-kitty-file.conf
+
+if ln -sf $config_file ~/.config/kitty/current-theme.conf
+  echo "Symlink created for kitty"
+else
+  echo "Failed to create symlink for kitty"
+end
+
+if pgrep -x "kitty" > /dev/null
+  if pkill -USR1 kitty
+    echo "Kitty restarted"
+  end
+else
+  echo "Kitty is not running, no need to restart"
+end
+'''
+
+### WEZTERM
+[[items]]
+path = "https://github.com/tinted-theming/tinted-terminal"
+name = "tinted-wezterm"
+themes-dir = "themes/wezterm"
+supported-systems = ["base16", "base24"]
+hook = '''
+touch -c ~/.config/wezterm/wezterm.lua
+'''
+
+### TMUX
+[[items]]
+path = "https://github.com/tinted-theming/tinted-tmux"
+name = "tinted-tmux"
+hook = "tmux source-file ~/.config/tmux/tmux.conf"
+themes-dir = "colors"
+supported-systems = ["base16", "base24"]
+
+# Item configurations
+[[items]]
+name = "tinted-shell"
+path = "https://github.com/tinted-theming/tinted-shell"
+themes-dir = "scripts"
+# hook = "source \"$TINTY_THEME_FILE_PATH\""
+hook = "sh %f"
+supported-systems = ["base16", "base24"]
