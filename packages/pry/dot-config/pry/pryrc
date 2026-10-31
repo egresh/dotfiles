@@ -1,0 +1,90 @@
+require "shellwords"
+require "yaml"
+require 'pry-doc'
+require 'pry-byebug'
+# require 'rb-readline'
+require 'awesome_print'
+
+Pry.config.history_save = true
+Pry.config.history_load = true
+Pry.config.history_file = "~/.local/share/pry/pry_history"
+
+Pry.config.color = true
+Pry.config.pager = true
+# Scratch buffer `edit` opens (Tempfile 'pry*.rb'): wipe diagnostics as they arrive. enable(false)
+# only hides display; Trouble still lists them. Real files keep diagnostics.
+NO_DIAGNOSTICS = "lua vim.api.nvim_create_autocmd('DiagnosticChanged', {buffer = 0, " \
+                 "callback = function(a) if #vim.diagnostic.get(a.buf) > 0 then vim.diagnostic.reset(nil, a.buf) end end})"
+Pry.config.editor = proc do |file, line|
+  scratch = File.basename(file).match?(/\Apry.*\.rb\z/) && file.start_with?(Dir.tmpdir, File.realpath(Dir.tmpdir))
+  "sl #{%(-c "#{NO_DIAGNOSTICS}") if scratch} +#{line} #{Shellwords.escape(file)}"
+end
+
+Pry.config.prompt_name = File.basename(Dir.pwd)
+Pry.config.prompt = Pry::Prompt.new(
+  "custom",
+  "my custom prompt",
+  [proc { |obj, nest_level, _| "#{obj}:#{nest_level}> " }]
+)
+
+# require 'pry-coolline' - doesn't work with vi mode
+#
+
+AwesomePrint.pry!
+# Return values use the terminal's ANSI palette, so match :tinty_theme where it can: strings are
+# base0B there and ANSI green here. Numbers and nil can't follow, ANSI has no base09.
+AwesomePrint.defaults = { color: { string: :greenish } }
+
+Pry.config.print = proc { |output, value| Pry::Helpers::BaseHelpers.stagger_output("=> #{value.ai}", output) }
+
+
+# Colour code like vim's base16 setup: read the active tinty scheme and write truecolor
+# escapes straight into CodeRay. Re-read on every Pry start.
+Pry.config.hooks.add_hook(:when_started, :tinty_theme) do
+  data = File.join(ENV.fetch('XDG_DATA_HOME', File.expand_path('~/.local/share')), 'tinted-theming/tinty')
+  system, slug = File.read("#{data}/current_scheme").strip.split('-', 2)
+  pal = YAML.load_file("#{data}/repos/schemes/#{system}/#{slug}.yaml")['palette']
+  c = ->(slot, bold = false) {
+    r, g, b = pal[slot].delete('#').scan(/../).map(&:hex)
+    "\e[#{'1;' if bold}38;2;#{r};#{g};#{b}m"
+  }
+  str = { self: c['base0B'], char: c['base0B'], content: c['base0B'], delimiter: c['base0F'], escape: c['base0C'] }
+  CodeRay::Encoders::Terminal::TOKEN_COLORS.merge!(
+    comment: c['base03'], docstring: c['base03'], error: c['base08', true], debug: c['base08', true],
+    class: c['base0A'], constant: c['base0A'], namespace: c['base0A'], type: c['base0A'],
+    keyword: c['base0E'], reserved: c['base0E'], directive: c['base0E'], include: c['base0E'],
+    method: c['base0D'], function: c['base0D'], predefined: c['base0D'], predefined_type: c['base0A'],
+    integer: c['base09'], float: c['base09'], hex: c['base09'], octal: c['base09'], binary: c['base09'],
+    predefined_constant: c['base09'], symbol: c['base0C'], key: c['base0C'],
+    instance_variable: c['base08'], class_variable: c['base08'], global_variable: c['base08'],
+    local_variable: c['base05'], variable: c['base05'], inline_delimiter: c['base0F'],
+    string: str, shell: str,
+    regexp: str.merge(self: c['base0C'], char: c['base0C'], content: c['base0C'], modifier: c['base0E'])
+  )
+rescue StandardError => e
+  warn "tinty_theme: #{e.message}"
+end
+
+# `edit --in N` indexes this session's input ring, which doesn't line up with the numbers `hist`
+# prints. `eh N` takes the number straight from `hist` (add -a for `hist --all` numbering),
+# opens that history entry in the editor, and runs it on save like `edit` does.
+Pry::Commands.create_command 'eh' do
+  description 'Edit entries N or N..M as numbered by `hist`, then run them.'
+  banner 'Usage: eh [-a] N[..M]'
+
+  def options(opt)
+    opt.on :a, :all, 'Number as in `hist --all`'
+  end
+
+  def process
+    first, last = args.first.to_s.match(/\A(\d+)(?:\.\.(\d+))?\z/)&.captures
+    raise Pry::CommandError, 'Usage: eh [-a] N[..M]' unless first
+
+    hist = Pry.history.to_a
+    hist = hist.last(Pry.history.session_line_count) unless opts.present?(:all)
+    lines = hist[0..-2][(first.to_i - 1)..((last || first).to_i - 1)]
+    raise Pry::CommandError, "No history at #{args.first}" if lines.nil? || lines.empty?
+
+    pry_instance.eval_string = Pry::Editor.new(pry_instance).edit_tempfile_with_content(lines.join("\n"))
+  end
+end

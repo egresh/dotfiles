@@ -4,4 +4,4 @@ java = "21"
 node = "latest"
 python = "latest"
 uv = "latest"
-ruby = { version = "latest", postinstall = "gem install rubocop pry ruby-lsp ruby-lsp-rails ffi" }
+ruby = { version = "latest", postinstall = "gem install rubocop pry pry-doc pry-byebug awesome_print ruby-lsp ruby-lsp-rails ffi" }
