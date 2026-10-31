@@ -35,6 +35,9 @@ for dir in dirlinks/*/; do
   [ -L "${XDG_CONFIG_HOME:-$HOME/.config}/$name" ] || bad "$name config is not a directory symlink"
 done
 [ -f "$HOME/.local/share/sketchybar_lua/sketchybar.so" ] || bad "SbarLua is not installed"
+for helper in event_providers/cpu_load/bin/cpu_load event_providers/network_load/bin/network_load menus/bin/menus; do
+  [ -x "dirlinks/sketchybar/helpers/$helper" ] || bad "sketchybar helper is not built: $helper"
+done
 
 [ $rc -eq 0 ] && echo ok
 exit $rc

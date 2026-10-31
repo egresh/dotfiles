@@ -19,13 +19,14 @@ for dir in dirlinks/*/; do
   ln -sfn "$PWD/dirlinks/$name" "$link"
 done
 
-# sketchybarrc needs the SbarLua module; its helpers build themselves when the bar starts
+# sketchybarrc needs the SbarLua module, and its compiled helpers are gitignored
 if [ ! -d "$HOME/.local/share/sketchybar_lua" ]; then
   sbarlua=$(mktemp -d)
   git clone -q https://github.com/FelixKratz/SbarLua.git "$sbarlua"
   (cd "$sbarlua" && make install)
   rm -rf "$sbarlua"
 fi
+make -C dirlinks/sketchybar/helpers
 brew services start sketchybar
 
 # Tinycast's palette hotkey (⇧⌥⌘Esc): what the Karabiner right control/shift tap rules send
