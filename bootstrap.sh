@@ -18,6 +18,9 @@ ln -sfn "$PWD/dirlinks/karabiner" "$k"
 # Tinycast's palette hotkey (⇧⌥⌘Esc): what the Karabiner right control/shift tap rules send
 defaults write com.tinycast.app hotkey.togglePalette -string '{"combo":{"_0":{"carbonModifiers":2816,"carbonKeyCode":53}}}'
 
+# Hammerspoon only reads ~/.hammerspoon unless told otherwise
+defaults write org.hammerspoon.Hammerspoon MJConfigFile -string '~/.config/hammerspoon/init.lua'
+
 # psql won't create the directory its HISTFILE points into
 mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/psql"
 
