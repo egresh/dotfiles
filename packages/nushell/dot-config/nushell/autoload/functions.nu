@@ -73,12 +73,6 @@ def jwt_decode [file: path] {
     open --raw $file | jq -R 'split(".") | .[] | @base64d | fromjson'
 }
 
-# restart yabai
-def yr [] {
-    yabai --stop-service
-    yabai --start-service
-}
-
 @complete external
 def --wrapped claude [...args] {
     if (which aws | is-not-empty) {

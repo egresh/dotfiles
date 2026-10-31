@@ -1,6 +1,5 @@
 require("items.apple")
 -- require("items.menus")
--- require("items.spaces")
 -- require("items.front_app")
 require("items.hostname")
 require("items.calendar")
