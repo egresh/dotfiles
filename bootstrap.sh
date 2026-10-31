@@ -10,10 +10,23 @@ brew bundle install --no-upgrade
 
 for dir in packages/*/; do stow "$(basename "$dir")"; done
 
-# Karabiner only notices changes through a symlinked directory, not a symlinked file, so stow can't link it
-k=${XDG_CONFIG_HOME:-$HOME/.config}/karabiner
-[ ! -e "$k" ] || [ -L "$k" ] || { echo "$k exists and isn't a symlink: move it aside first" >&2; exit 1; }
-ln -sfn "$PWD/dirlinks/karabiner" "$k"
+# Karabiner and sketchybar watch their own directory for changes, so stow's per-file links won't do:
+# each gets one symlink to the whole directory.
+for dir in dirlinks/*/; do
+  name=$(basename "$dir")
+  link=${XDG_CONFIG_HOME:-$HOME/.config}/$name
+  [ ! -e "$link" ] || [ -L "$link" ] || { echo "$link exists and isn't a symlink: move it aside first" >&2; exit 1; }
+  ln -sfn "$PWD/dirlinks/$name" "$link"
+done
+
+# sketchybarrc needs the SbarLua module; its helpers build themselves when the bar starts
+if [ ! -d "$HOME/.local/share/sketchybar_lua" ]; then
+  sbarlua=$(mktemp -d)
+  git clone -q https://github.com/FelixKratz/SbarLua.git "$sbarlua"
+  (cd "$sbarlua" && make install)
+  rm -rf "$sbarlua"
+fi
+brew services start sketchybar
 
 # Tinycast's palette hotkey (⇧⌥⌘Esc): what the Karabiner right control/shift tap rules send
 defaults write com.tinycast.app hotkey.togglePalette -string '{"combo":{"_0":{"carbonModifiers":2816,"carbonKeyCode":53}}}'

@@ -30,7 +30,11 @@ done
 
 tinty current >/dev/null 2>&1 || bad "no tinty theme applied"
 [ -e "${XDG_CONFIG_HOME:-$HOME/.config}/kitty/current-theme.conf" ] || bad "kitty has no current theme"
-[ -L "${XDG_CONFIG_HOME:-$HOME/.config}/karabiner" ] || bad "karabiner config is not a directory symlink"
+for dir in dirlinks/*/; do
+  name=$(basename "$dir")
+  [ -L "${XDG_CONFIG_HOME:-$HOME/.config}/$name" ] || bad "$name config is not a directory symlink"
+done
+[ -f "$HOME/.local/share/sketchybar_lua/sketchybar.so" ] || bad "SbarLua is not installed"
 
 [ $rc -eq 0 ] && echo ok
 exit $rc
