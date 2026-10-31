@@ -118,7 +118,6 @@ $env.config.abbreviations = {
   ekara: "NVIM_APPNAME=lazyvim nvim ~/.config/karabiner/karabiner.edn"
   emux: "NVIM_APPNAME=lazyvim nvim ~/.config/tmux/tmux.conf"
   esl: "NVIM_APPNAME=lazyvim nvim ~/.config/lazyvim/lua"
-  eyaro: "NVIM_APPNAME=lazyvim nvim ~/.config/aerospace/aerospace.toml"
   sc: "NVIM_APPNAME=lazyvim_clean nvim"
   sl: "NVIM_APPNAME=lazyvim nvim"
 
