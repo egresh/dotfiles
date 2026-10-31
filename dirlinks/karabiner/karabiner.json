@@ -1,0 +1,5739 @@
+{
+  "profiles" : [ {
+    "complex_modifications" : {
+      "parameters" : {
+        "basic.simultaneous_threshold_milliseconds" : 50,
+        "basic.to_delayed_action_delay_milliseconds" : 200,
+        "basic.to_if_alone_timeout_milliseconds" : 200,
+        "basic.to_if_held_down_threshold_milliseconds" : 500
+      },
+      "rules" : [ {
+        "description" : "Right control tap triggers Tinycast",
+        "manipulators" : [ {
+          "to_if_alone" : [ {
+            "key_code" : "escape",
+            "modifiers" : [ "left_command", "left_option", "left_shift" ]
+          } ],
+          "from" : {
+            "key_code" : "right_control",
+            "modifiers" : {
+              "optional" : [ "any" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "right_control"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "Left command tap triggers ShortCat",
+        "manipulators" : [ {
+          "to_if_alone" : [ {
+            "key_code" : "delete_forward",
+            "modifiers" : [ "left_command", "left_option", "left_shift" ]
+          } ],
+          "from" : {
+            "key_code" : "left_command",
+            "modifiers" : {
+              "optional" : [ "any" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "left_command"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "Caps lock triggers hyper or shift on advantage",
+        "manipulators" : [ {
+          "to_if_alone" : [ {
+            "key_code" : "escape"
+          } ],
+          "from" : {
+            "key_code" : "caps_lock",
+            "modifiers" : {
+              "optional" : [ "any" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "left_shift",
+            "modifiers" : [ "left_command", "left_control", "left_option", "left_shift" ]
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "Right shift triggers Tinycast on Apple keyboards",
+        "manipulators" : [ {
+          "to_if_alone" : [ {
+            "key_code" : "escape",
+            "modifiers" : [ "left_command", "left_option", "left_shift" ]
+          } ],
+          "from" : {
+            "key_code" : "right_shift",
+            "modifiers" : {
+              "optional" : [ "any" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "right_shift"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 76,
+              "product_id" : 668
+            }, {
+              "is_built_in_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "Caps lock sends escape or ctrl on Laptop",
+        "manipulators" : [ {
+          "to_if_alone" : [ {
+            "key_code" : "escape"
+          } ],
+          "to_if_held_down" : [ {
+            "key_code" : "left_control"
+          } ],
+          "from" : {
+            "key_code" : "caps_lock",
+            "modifiers" : {
+              "optional" : [ "any" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "left_control"
+          } ],
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 76,
+              "product_id" : 668
+            }, {
+              "is_built_in_keyboard" : true
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "foward-mode hyper launcher",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "c"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Chrome'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Chrome'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "c"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "m"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Messages'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Messages'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "m"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "e"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Mail'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Mail'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "e"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "k"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Kitty'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Kitty'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "k"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "o"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Microsoft Outlook'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Microsoft Outlook'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "o"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "p"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Preview'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Preview'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "p"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "s"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Slack'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Slack'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "s"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "t"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Microsoft Teams'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Microsoft Teams'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "t"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "v"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Vivaldi'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Vivaldi'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "v"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "w"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'WezTerm'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'WezTerm'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "w"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "z"
+          },
+          "to" : [ {
+            "shell_command" : "open -a 'Zen'"
+          } ],
+          "conditions" : [ {
+            "name" : "forward-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "forward-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "open -a 'Zen'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_forward"
+            }, {
+              "key_code" : "z"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "forward-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        } ]
+      }, {
+        "description" : "Terminal Mappings",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "j",
+            "modifiers" : {
+              "mandatory" : [ "left_command" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "a",
+            "modifiers" : [ "left_control" ]
+          }, {
+            "key_code" : "a"
+          }, {
+            "key_code" : "s"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "k",
+            "modifiers" : {
+              "mandatory" : [ "left_command" ]
+            }
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/tmux resize-pane -Z"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "period",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "c",
+            "modifiers" : [ "left_option" ]
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "browsers",
+        "manipulators" : [ {
+          "to_if_held_down" : [ {
+            "key_code" : "down_arrow"
+          } ],
+          "from" : {
+            "key_code" : "j",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "down_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^org\\.mozilla\\.firefox$", "^company\\.thebrowser\\.Browser$", "^com.vivaldi.Vivaldi$", "^app\\.zen-browser\\.zen" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "to_if_held_down" : [ {
+            "key_code" : "up_arrow"
+          } ],
+          "from" : {
+            "key_code" : "k",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "up_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^org\\.mozilla\\.firefox$", "^company\\.thebrowser\\.Browser$", "^com.vivaldi.Vivaldi$", "^app\\.zen-browser\\.zen" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "h",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "w",
+            "modifiers" : [ "left_command", "left_control", "left_shift" ]
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^org\\.mozilla\\.firefox$", "^company\\.thebrowser\\.Browser$", "^com.vivaldi.Vivaldi$", "^app\\.zen-browser\\.zen" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "l",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "e",
+            "modifiers" : [ "left_command", "left_control", "left_shift" ]
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^org\\.mozilla\\.firefox$", "^company\\.thebrowser\\.Browser$", "^com.vivaldi.Vivaldi$", "^app\\.zen-browser\\.zen" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "s",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "c",
+            "modifiers" : [ "left_command", "left_option" ]
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^org\\.mozilla\\.firefox$", "^company\\.thebrowser\\.Browser$", "^com.vivaldi.Vivaldi$", "^app\\.zen-browser\\.zen" ]
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "Up and Down arrows send Left and Right Brackets on kinesis in Terminals",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "up_arrow",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "down_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "up_arrow"
+          },
+          "to" : [ {
+            "key_code" : "open_bracket"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "down_arrow",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "up_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "down_arrow"
+          },
+          "to" : [ {
+            "key_code" : "close_bracket"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "up_arrow",
+            "modifiers" : {
+              "mandatory" : [ "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "open_bracket",
+            "modifiers" : [ "left_shift" ]
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "down_arrow",
+            "modifiers" : {
+              "mandatory" : [ "left_shift" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "close_bracket",
+            "modifiers" : [ "left_shift" ]
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "identifiers" : [ {
+              "vendor_id" : 10730,
+              "product_id" : 866
+            }, {
+              "vendor_id" : 7504,
+              "product_id" : 24926
+            }, {
+              "vendor_id" : 1523,
+              "product_id" : 7
+            } ],
+            "type" : "device_if"
+          } ],
+          "type" : "basic"
+        } ]
+      }, {
+        "description" : "m-mode",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "1"
+          },
+          "to" : [ {
+            "shell_command" : "~/bin/toggle_displays.sh"
+          } ],
+          "conditions" : [ {
+            "name" : "m-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "m-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "~/bin/toggle_displays.sh"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "m"
+            }, {
+              "key_code" : "1"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "m-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "t"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/hs -c 'mic.toggle()'"
+          } ],
+          "conditions" : [ {
+            "name" : "m-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "m-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/hs -c 'mic.toggle()'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "m"
+            }, {
+              "key_code" : "t"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "m-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "s"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/hs -c 'mic.mute()'"
+          } ],
+          "conditions" : [ {
+            "name" : "m-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "m-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/hs -c 'mic.mute()'"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "m"
+            }, {
+              "key_code" : "s"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "m-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        } ]
+      }, {
+        "description" : "v-mode",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "m"
+          },
+          "to" : [ {
+            "key_code" : "a",
+            "modifiers" : [ "left_control" ]
+          }, {
+            "key_code" : "a"
+          }, {
+            "key_code" : "s"
+          } ],
+          "conditions" : [ {
+            "name" : "v-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          }, {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "v-mode",
+              "value" : 1
+            }
+          }, {
+            "key_code" : "a",
+            "modifiers" : [ "left_control" ]
+          }, {
+            "key_code" : "a"
+          }, {
+            "key_code" : "s"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "v"
+            }, {
+              "key_code" : "m"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "v-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "j"
+          },
+          "to" : [ {
+            "consumer_key_code" : "volume_decrement"
+          } ],
+          "conditions" : [ {
+            "name" : "v-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "v-mode",
+              "value" : 1
+            }
+          }, {
+            "consumer_key_code" : "volume_decrement"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "v"
+            }, {
+              "key_code" : "j"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "v-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "k"
+          },
+          "to" : [ {
+            "consumer_key_code" : "volume_increment"
+          } ],
+          "conditions" : [ {
+            "name" : "v-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "v-mode",
+              "value" : 1
+            }
+          }, {
+            "consumer_key_code" : "volume_increment"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "v"
+            }, {
+              "key_code" : "k"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "v-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "o"
+          },
+          "to" : [ {
+            "key_code" : "f5",
+            "modifiers" : [ "left_command" ]
+          } ],
+          "conditions" : [ {
+            "name" : "v-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "v-mode",
+              "value" : 1
+            }
+          }, {
+            "key_code" : "f5",
+            "modifiers" : [ "left_command" ]
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "v"
+            }, {
+              "key_code" : "o"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "v-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        } ]
+      }, {
+        "description" : "enter-mode OmniWM control via omniwmctl",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "q"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-quake-terminal"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-quake-terminal"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "q"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "a"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move left"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move left"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "a"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "s"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move down"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move down"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "s"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "d"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move up"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move up"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "d"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "f"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move right"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move right"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "f"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "c"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command center-column"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command center-column"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "c"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "r"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command raise-all-floating-windows"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command raise-all-floating-windows"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "r"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "q"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command consume-or-expel-window-left"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command consume-or-expel-window-left"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "q"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "w"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command consume-or-expel-window-right"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command consume-or-expel-window-right"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "w"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "z"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-container-full-primary-span"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-container-full-primary-span"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "z"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "g"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-focused-window-floating"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-focused-window-floating"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "g"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "e"
+          },
+          "to" : [ {
+            "shell_command" : "~/bin/float-center"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "~/bin/float-center"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "e"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "t"
+          },
+          "to" : [ {
+            "shell_command" : "~/bin/float-cycle"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "~/bin/float-cycle"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "t"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "b"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command balance-sizes"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command balance-sizes"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "b"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "1"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 1"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 1"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "1"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "2"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 2"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 2"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "2"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "3"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 3"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 3"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "3"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "4"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 4"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 4"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "4"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "5"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 5"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 5"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "5"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "6"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 6"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 6"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "6"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "7"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 7"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 7"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "7"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "8"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 8"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 8"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "8"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "9"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 9"
+          } ],
+          "conditions" : [ {
+            "name" : "enter-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "enter-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command move-to-workspace 9"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "return_or_enter"
+            }, {
+              "key_code" : "9"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "enter-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        } ]
+      }, {
+        "description" : "space-mode: OmniWM control via omniwmctl",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "1"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 1"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 1"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "1"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "2"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 2"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 2"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "2"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "3"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 3"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 3"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "3"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "4"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 4"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 4"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "4"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "5"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 5"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 5"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "5"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "6"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 6"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 6"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "6"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "7"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 7"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 7"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "7"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "8"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 8"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 8"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "8"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "9"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 9"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 9"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "9"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "h"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus left"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus left"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "h"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "j"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus down"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus down"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "j"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "k"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus up"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus up"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "k"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "l"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus right"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus right"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "l"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "n"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor next"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor next"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "n"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "p"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor prev"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor prev"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "p"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "tab"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus previous"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus previous"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "tab"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "open_bracket"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column first"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column first"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "open_bracket"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "close_bracket"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column last"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column last"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "close_bracket"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "s"
+          },
+          "to" : [ {
+            "shell_command" : "~/bin/syswatch"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "~/bin/syswatch"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "s"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "i"
+          },
+          "to" : [ {
+            "shell_command" : "~/bin/karabiner-hud"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "~/bin/karabiner-hud"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "i"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "comma"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size backward"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size backward"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "comma"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "period"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size forward"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size forward"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "period"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "hyphen"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span -10%"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span -10%"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "hyphen"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "equal_sign"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span +10%"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span +10%"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "equal_sign"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "b"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command balance-sizes"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command balance-sizes"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "b"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "r"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command reset-window-secondary-span"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command reset-window-secondary-span"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "r"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "t"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-column-tabbed"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-column-tabbed"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "t"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "c"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command center-column"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command center-column"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "c"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "f"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "f"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "o"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-overview"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-overview"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "o"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "semicolon"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-workspace-layout"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-workspace-layout"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "semicolon"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "grave_accent_and_tilde"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-quake-terminal"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-quake-terminal"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "grave_accent_and_tilde"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "slash"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-command-palette"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-command-palette"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "slash"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        }, {
+          "from" : {
+            "key_code" : "m"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-menu-anywhere"
+          } ],
+          "conditions" : [ {
+            "name" : "space-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "space-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-menu-anywhere"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "spacebar"
+            }, {
+              "key_code" : "m"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "space-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          }
+        } ]
+      }, {
+        "description" : "defy backspace-mode: same as space-mode, Defy only",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "1"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 1"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 1"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "1"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "2"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 2"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 2"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "2"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "3"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 3"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 3"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "3"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "4"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 4"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 4"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "4"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "5"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 5"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 5"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "5"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "6"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 6"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 6"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "6"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "7"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 7"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 7"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "7"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "8"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 8"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 8"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "8"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "9"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 9"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command switch-workspace 9"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "9"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "h"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus left"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus left"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "h"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "j"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus down"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus down"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "j"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "k"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus up"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus up"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "k"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "l"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus right"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus right"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "l"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "n"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor next"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor next"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "n"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "p"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor prev"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-monitor prev"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "p"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "tab"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus previous"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus previous"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "tab"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "open_bracket"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column first"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column first"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "open_bracket"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "close_bracket"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column last"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command focus-column last"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "close_bracket"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "s"
+          },
+          "to" : [ {
+            "shell_command" : "~/bin/syswatch"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "~/bin/syswatch"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "s"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "i"
+          },
+          "to" : [ {
+            "shell_command" : "~/bin/karabiner-hud"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "~/bin/karabiner-hud"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "i"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "comma"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size backward"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size backward"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "comma"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "period"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size forward"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command cycle-size forward"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "period"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "hyphen"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span -10%"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span -10%"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "hyphen"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "equal_sign"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span +10%"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command set-container-primary-span +10%"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "equal_sign"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "b"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command balance-sizes"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command balance-sizes"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "b"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "r"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command reset-window-secondary-span"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command reset-window-secondary-span"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "r"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "t"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-column-tabbed"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-column-tabbed"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "t"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "c"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command center-column"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command center-column"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "c"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "f"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "f"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "o"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-overview"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-overview"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "o"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "semicolon"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-workspace-layout"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-workspace-layout"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "semicolon"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "grave_accent_and_tilde"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-quake-terminal"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-quake-terminal"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "grave_accent_and_tilde"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "slash"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-command-palette"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-command-palette"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "slash"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        }, {
+          "from" : {
+            "key_code" : "m"
+          },
+          "to" : [ {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-menu-anywhere"
+          } ],
+          "conditions" : [ {
+            "name" : "defy-bs-mode",
+            "value" : 1,
+            "type" : "variable_if"
+          } ],
+          "type" : "basic"
+        }, {
+          "type" : "basic",
+          "parameters" : {
+            "basic.simultaneous_threshold_milliseconds" : 400
+          },
+          "to" : [ {
+            "set_variable" : {
+              "name" : "defy-bs-mode",
+              "value" : 1
+            }
+          }, {
+            "shell_command" : "/opt/homebrew/bin/omniwmctl command open-menu-anywhere"
+          } ],
+          "from" : {
+            "simultaneous" : [ {
+              "key_code" : "delete_or_backspace"
+            }, {
+              "key_code" : "m"
+            } ],
+            "simultaneous_options" : {
+              "detect_key_down_uninterruptedly" : true,
+              "key_down_order" : "strict",
+              "key_up_order" : "strict_inverse",
+              "key_up_when" : "any",
+              "to_after_key_up" : [ {
+                "set_variable" : {
+                  "name" : "defy-bs-mode",
+                  "value" : 0
+                }
+              } ]
+            }
+          },
+          "conditions" : [ {
+            "identifiers" : [ {
+              "vendor_id" : 13807,
+              "product_id" : 18
+            } ],
+            "type" : "device_if"
+          } ]
+        } ]
+      }, {
+        "description" : "Ctrl-J/K produce Down/Up outside terminals",
+        "manipulators" : [ {
+          "from" : {
+            "key_code" : "j",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "down_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_unless",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "type" : "frontmost_application_unless",
+            "bundle_identifiers" : [ "^com\\.mitchellh\\.ghostty$" ]
+          }, {
+            "type" : "frontmost_application_unless",
+            "bundle_identifiers" : [ "^com\\.barut\\.OmniWM$" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "k",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "up_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_unless",
+            "bundle_identifiers" : [ "^com\\.googlecode\\.iterm2$", "^net\\.kovidgoyal\\.kitty$", "^com\\.github\\.wez\\.wezterm$", "^com\\.apple\\.Terminal$" ]
+          }, {
+            "type" : "frontmost_application_unless",
+            "bundle_identifiers" : [ "^com\\.mitchellh\\.ghostty$" ]
+          }, {
+            "type" : "frontmost_application_unless",
+            "bundle_identifiers" : [ "^com\\.barut\\.OmniWM$" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "h",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "left_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.apple\\.Preview$", "^com\\.apple\\.Music$", "^com\\.kapeli\\.dashdoc$" ]
+          } ],
+          "type" : "basic"
+        }, {
+          "from" : {
+            "key_code" : "l",
+            "modifiers" : {
+              "mandatory" : [ "left_control" ]
+            }
+          },
+          "to" : [ {
+            "key_code" : "right_arrow"
+          } ],
+          "conditions" : [ {
+            "type" : "frontmost_application_if",
+            "bundle_identifiers" : [ "^com\\.apple\\.Preview$", "^com\\.apple\\.Music$", "^com\\.kapeli\\.dashdoc$" ]
+          } ],
+          "type" : "basic"
+        } ]
+      } ]
+    },
+    "devices" : [ {
+      "identifiers" : {
+        "is_keyboard" : true,
+        "is_pointing_device" : true,
+        "product_id" : 866,
+        "vendor_id" : 10730
+      },
+      "ignore" : false
+    }, {
+      "identifiers" : {
+        "is_keyboard" : true,
+        "is_pointing_device" : true,
+        "product_id" : 24926,
+        "vendor_id" : 7504
+      },
+      "ignore" : false
+    }, {
+      "identifiers" : {
+        "is_keyboard" : true,
+        "is_pointing_device" : true,
+        "product_id" : 18,
+        "vendor_id" : 13807
+      },
+      "ignore" : false
+    } ],
+    "name" : "Default",
+    "selected" : true,
+    "virtual_hid_keyboard" : {
+      "keyboard_type_v2" : "ansi"
+    }
+  } ]
+}

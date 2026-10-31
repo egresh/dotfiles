@@ -10,6 +10,14 @@ brew bundle install --no-upgrade
 
 for dir in packages/*/; do stow "$(basename "$dir")"; done
 
+# Karabiner only notices changes through a symlinked directory, not a symlinked file, so stow can't link it
+k=${XDG_CONFIG_HOME:-$HOME/.config}/karabiner
+[ ! -e "$k" ] || [ -L "$k" ] || { echo "$k exists and isn't a symlink: move it aside first" >&2; exit 1; }
+ln -sfn "$PWD/dirlinks/karabiner" "$k"
+
+# Tinycast's palette hotkey (⇧⌥⌘Esc): what the Karabiner right control/shift tap rules send
+defaults write com.tinycast.app hotkey.togglePalette -string '{"combo":{"_0":{"carbonModifiers":2816,"carbonKeyCode":53}}}'
+
 # psql won't create the directory its HISTFILE points into
 mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/psql"
 

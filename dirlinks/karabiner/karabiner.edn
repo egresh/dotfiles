@@ -1,0 +1,441 @@
+{
+
+  :simlayer-threshold 400 ;; simlayer chord window (def: 250); wide enough for Bazecor superkeys, which send a tap at release
+
+  :profiles {
+    :Default {
+      :default true
+      :sim 50 ;; simultaneous_threshold_milliseconds (def: 50)
+      ; keys need to be pressed within this threshold to be considered simultaneous
+      :delay 200 ;; to_delayed_action_delay_milliseconds (def: 500)
+      ;; basically it means time after which the key press is count delayed
+      :alone 200 ;; to_if_alone_timeout_milliseconds (def: 1000)
+      ;; hold for 995s and single tap registered; hold for 1005s and seen as modifier
+      :held 500 ;; to_if_held_down_threshold_milliseconds (def: 500)
+      ;; key is fired twice when 500 ms is elapsed (otherwise seen as a hold command)
+    }
+  } ;; end profiles
+
+  :devices {
+    :apple           [{:vendor_id 76,    :product_id 668}
+                      {:is_built_in_keyboard true}]
+    :advantage       [{:vendor_id 1523,  :product_id 7}]
+    :360_bt          [{:vendor_id 7504,  :product_id 24926}]
+    :360_usb         [{:vendor_id 10730, :product_id 866}]
+    :360             [{:vendor_id 10730, :product_id 866},
+                      {:vendor_id 7504,  :product_id 24926}]
+    :all_kinesis     [{:vendor_id 10730, :product_id 866},
+                      {:vendor_id 7504,  :product_id 24926},
+                      {:vendor_id 1523,  :product_id 7}],
+    :defy            [{:vendor_id  13807  :product_id 18}]
+  } ;; end devices
+
+  :templates {
+    :open             "open -a '%s'"
+    :hs               "/opt/homebrew/bin/hs -c '%s'"
+    :omni             "/opt/homebrew/bin/omniwmctl command %s"
+    :lua              "/usr/bin/env lua %s"
+    :bash             "/usr/bin/env bash %s"
+    :tmux             "/opt/homebrew/bin/tmux %s"
+  } ;; end templates
+
+  :layers {
+    ;; :comma-mode {:key :comma :alone {:key :comma}}
+  } ;; end layers
+
+  :simlayers {
+      :space-mode   {:key :spacebar}
+;     :a-mode       {:key :a}
+;     :d-mode       {:key :d}
+;     :f-mode       {:key :f}
+      :m-mode       {:key :m}
+;     :s-mode       {:key :s}
+      :v-mode       {:key :v}
+      :w-mode       {:key :w}
+      :k-space      {:key :spacebar :conditions [:all-kinesis]}
+      :d-space      {:key :spacebar :conditions [:defy]}
+      :defy-bs-mode {:key :delete_or_backspace :condi :defy}
+      :enter-mode   {:key :return_or_enter}
+      ; :delete-mode  {:key :delete_or_backspace :conditions [:all_kinesis]}
+      :forward-mode {:key :delete_forward}
+    } ;; end simlayers
+
+  :applications {;; terminals
+                 :iterm     ["com.googlecode.iterm2"]
+                 :kitty     ["net.kovidgoyal.kitty"]
+                 :wezterm   ["com.github.wez.wezterm"]
+                 :terminal  ["com.apple.Terminal"]
+                 :ghostty   ["^com\\.mitchellh\\.ghostty$"]
+                 :omniwm    ["^com\\.barut\\.OmniWM$"] ;; hosts the quake terminal
+                 :terminals [
+                   "^com\\.googlecode\\.iterm2$",
+                   "^net\\.kovidgoyal\\.kitty$",
+                   "^com\\.github\\.wez\\.wezterm$",
+                   "^com\\.apple\\.Terminal$"]
+
+                 ;; browsers
+                 :firefox  ["^org\\.mozilla\\.firefox$"]
+                 :vivaldi  ["^com\\.vivaldi\\.Vivaldi$"]
+                 :zen      ["^app\\.zen-browser\\.zen$"]
+                 :browsers [
+                   "^org\\.mozilla\\.firefox$",
+                   "^company\\.thebrowser\\.Browser$",
+                   "^com.vivaldi.Vivaldi$",
+                   "^app\\.zen-browser\\.zen"]
+
+                 :preview  ["^com\\.apple\\.Preview$"]
+                 :books    ["^com\\.apple\\.iBooks$"]
+                 :shortcat ["^com\\.sproutcube\\.Shortcat$"]
+                 :ddpm     ["^Qisda\\.DDPM"]
+                 :music    ["^com\\.apple\\.Music$"]
+                 :vim_mode ["^com\\.apple\\.Preview$" "^com\\.apple\\.Music$" "^com\\.kapeli\\.dashdoc$"]
+
+  } ;; end applications
+
+  :tos {
+    :tmux_prefix {:key :!Ta}
+  } ;; end tos
+
+  :main [
+         ; Kinesis Mappings
+         {:des "Home maps to ALT"
+          :rules [:##home :left_option :all_kinesis] }
+
+         {:des "Right control tap triggers Tinycast"
+          :rules [[:##right_control :right_control [:all_kinesis] {:alone :!SOCescape}]] }
+
+         {:des "Left command tap triggers ShortCat"
+          ;; Shortcat's toggleShortcat hotkey is ⇧⌥⌘⌦ (forward delete), not ⌫
+          :rules [[:##left_command :left_command [:all_kinesis] {:alone :!SOCdelete_forward}]] }
+
+         {:des "Caps lock triggers hyper or shift on advantage"
+          :rules [[:##caps_lock :!!left_shift [:advantage] {:alone :escape}]]}
+
+         {:des "Right shift triggers Tinycast on Apple keyboards"
+          :rules [[:##right_shift :right_shift [:apple] {:alone :!SOCescape}]] }
+
+         {:des "Caps lock sends escape or ctrl on Laptop"
+          :rules [[:##caps_lock :left_control [:apple] {:alone :escape :held :left_control}]]}
+
+         ; {:des "delete-mode hyper launcher"
+         ;  :rules [:delete-mode
+         ;         [:c "open -a 'Chrome'"]
+         ;          [:m "open -a 'Messages'"]
+         ;          [:e "open -a 'Mail'"]
+         ;          [:k "open -a 'Kitty'"]
+         ;          [:o "open -a 'Microsoft Outlook'"]
+         ;          [:p "open -a 'Preview'"]
+         ;          [:s "open -a 'Slack'"]
+         ;          [:t "open -a 'Microsoft Teams'"]
+         ;          [:v "open -a 'Vivaldi'"]
+         ;          [:w "open -a 'WezTerm'"]
+         ;          [:z "open -a 'Zen'"] ]}
+         ;
+         ; {:des "delete-mode other bindings"
+         ;  :rules [:delete-mode
+         ;          [:h :!Sh ]
+         ;          [:l :!Sl ]
+         ;          ]}
+
+         {:des "foward-mode hyper launcher"
+         :rules [:forward-mode
+                 [:c "open -a 'Chrome'"]
+                 [:m "open -a 'Messages'"]
+                 [:e "open -a 'Mail'"]
+                 [:k "open -a 'Kitty'"]
+                 [:o "open -a 'Microsoft Outlook'"]
+                 [:p "open -a 'Preview'"]
+                 [:s "open -a 'Slack'"]
+                 [:t "open -a 'Microsoft Teams'"]
+                 [:v "open -a 'Vivaldi'"]
+                 [:w "open -a 'WezTerm'"]
+                 [:z "open -a 'Zen'"] ]}
+
+         {:des "Terminal Mappings",
+          :rules [
+                  [:!Cj [:tmux_prefix :a :s] [:terminals]]
+                  [:!Ck [:tmux "resize-pane -Z"] [:terminals]]
+                  ;; fzf alt-c mapping
+                  [:!Tperiod [:!Oc]] ]}
+
+         ; {:des "Double-tap period toggles tmux fullscreen pane (C-a z)"
+         ;  :rules [
+         ;          ;; second tap within the delay window: undo the first period, send C-a z
+         ;          [:period [:delete_or_backspace :tmux_prefix :z ["period-double-tap" 0]]
+         ;           [:terminals ["period-double-tap" 1]]]
+         ;          ;; first tap: type period as normal, arm the window, disarm after :delay ms
+         ;          [:period [:period ["period-double-tap" 1]]
+         ;           [:terminals]
+         ;           {:delayed {:invoked ["period-double-tap" 0] :canceled ["period-double-tap" 0]}}] ]}
+
+         {:des "browsers"
+          :rules [[:!Tj :down_arrow :browsers {:held :down_arrow}]
+                  [:!Tk :up_arrow :browsers {:held :up_arrow}]
+                  [:!Th :!TCSw :browsers]
+                  [:!Tl :!TCSe :browsers]
+                  [:!Ts :!OCc [:browsers]] ]}
+
+         {:des "Up and Down arrows send Left and Right Brackets on kinesis in Terminals"
+          :rules [[:!Tup_arrow :down_arrow [:terminals :all_kinesis]]
+                  [:up_arrow :open_bracket [:terminals :all_kinesis]]
+                  [:!Tdown_arrow :up_arrow [:terminals :all_kinesis]]
+                  [:down_arrow :close_bracket [:terminals :all_kinesis]]
+                  [:!Sup_arrow :!Sopen_bracket [:terminals :all_kinesis]]
+                  [:!Sdown_arrow :!Sclose_bracket [:terminals :all_kinesis]] ]}
+
+;        {:des "a-mode for hjkl movement and nm enter and ui tab and ,. PageDn/Up"
+;         :rules [:a-mode
+;                  [:h :left_arrow]
+;                  [:j :down_arrow]
+;                  [:k :up_arrow]
+;                  [:l :right_arrow]
+;                  [:m :return_or_enter]
+;                  [:u :tab]
+;                  [:i :tab]
+;                  [:comma :page_down]
+;                  [:period :page_up] ]}
+
+;        {:des "f-mode for delimeters and ! ? $"
+;         :rules [:f-mode
+;                [:u :!Sopen_bracket]
+;                [:i :!Sclose_bracket]
+;                [:h :delete_or_backspace]
+;                [:j :open_bracket]
+;                [:k :close_bracket]
+;                [:m :!S9]
+;                [:comma :!S0]
+;                [:o :!S1]
+;                [:l :!Sslash] ]}
+
+         {:des "m-mode"
+          :rules [:m-mode
+                 [:1 "~/bin/toggle_displays.sh"]
+                 [:t "/opt/homebrew/bin/hs -c 'mic.toggle()'"]
+                 [:s "/opt/homebrew/bin/hs -c 'mic.mute()'"] ]}
+
+         {:des "v-mode"
+          :rules [:v-mode
+                  [:m [:tmux_prefix :a :s] [:terminals]]
+                  [:j :volume_decrement]
+                  [:k :volume_increment]
+                  [:o :!Cf5] ]} ;; Cmd+F5 toggles VoiceOver
+
+         {:des "enter-mode OmniWM control via omniwmctl"
+          :rules [:enter-mode
+                  [:q [:omni "toggle-quake-terminal"]]
+                  ;; move window
+                  [:a [:omni "move left"]]
+                  [:s [:omni "move down"]]
+                  [:d [:omni "move up"]]
+                  [:f [:omni "move right"]] 
+                  [:c [:omni "center-column"]]
+                  [:r [:omni "raise-all-floating-windows"]]
+                  [:q [:omni "consume-or-expel-window-left"]]
+                  [:w [:omni "consume-or-expel-window-right"]]
+                  [:z [:omni "toggle-container-full-primary-span"]]
+                  ;; floating-window helpers
+                  [:g [:omni "toggle-focused-window-floating"]]
+                  [:e "~/bin/float-center"]  ;; float + centre a stuck window, clear of the bar
+                  [:t "~/bin/float-cycle"]   ;; focus next visible floating window
+
+                  [:b [:omni "balance-sizes"]]
+
+                  [:1 [:omni "move-to-workspace 1"]]
+                  [:2 [:omni "move-to-workspace 2"]]
+                  [:3 [:omni "move-to-workspace 3"]]
+                  [:4 [:omni "move-to-workspace 4"]]
+                  [:5 [:omni "move-to-workspace 5"]]
+                  [:6 [:omni "move-to-workspace 6"]]
+                  [:7 [:omni "move-to-workspace 7"]]
+                  [:8 [:omni "move-to-workspace 8"]]
+                  [:9 [:omni "move-to-workspace 9"]] ]}
+
+         ; OMNIWM — `space` leader drives omniwmctl (OmniWM hotkeysEnabled=false)
+         {:des "space-mode: OmniWM control via omniwmctl"
+          :rules [:space-mode
+                  ;; workspaces (bare digit = switch)
+                  [:1 [:omni "switch-workspace 1"]]
+                  [:2 [:omni "switch-workspace 2"]]
+                  [:3 [:omni "switch-workspace 3"]]
+                  [:4 [:omni "switch-workspace 4"]]
+                  [:5 [:omni "switch-workspace 5"]]
+                  [:6 [:omni "switch-workspace 6"]]
+                  [:7 [:omni "switch-workspace 7"]]
+                  [:8 [:omni "switch-workspace 8"]]
+                  [:9 [:omni "switch-workspace 9"]]
+
+                  ; [:q [:omni "toggle-quake-terminal"]]
+                  ;; focus commands
+                  [:h [:omni "focus left"]]
+                  [:j [:omni "focus down"]]
+                  [:k [:omni "focus up"]]
+                  [:l [:omni "focus right"]]
+                  [:n   [:omni "focus-monitor next"]]
+                  [:p   [:omni "focus-monitor prev"]]
+                  [:tab [:omni "focus previous"]]
+                  [:open_bracket  [:omni "focus-column first"]]
+                  [:close_bracket [:omni "focus-column last"]]
+
+                  ;; enhancements
+                  [:s "~/bin/syswatch"] ;; jump to/from the Syswatch scratch workspace (8) running syswatch
+                  [:i "~/bin/karabiner-hud"] ;; pop up a searchable list of these key mappings
+
+                  ;; columns
+                  [:comma  [:omni "cycle-size backward"]]
+                  [:period [:omni "cycle-size forward"]]
+                  [:hyphen     [:omni "set-container-primary-span -10%"]]
+                  [:equal_sign [:omni "set-container-primary-span +10%"]]
+                  ; [:f [:omni "expand-container-to-available-primary-span"]]
+                  [:b   [:omni "balance-sizes"]]
+                  [:r   [:omni "reset-window-secondary-span"]]
+                  [:t [:omni "toggle-column-tabbed"]]
+                  [:c [:omni "center-column"]]
+                  [:f [:omni "toggle-fullscreen"]]
+                  [:o [:omni "toggle-overview"]]
+                  [:semicolon [:omni "toggle-workspace-layout"]]
+                  [:grave_accent_and_tilde [:omni "toggle-quake-terminal"]]
+                  [:slash [:omni "open-command-palette"]]
+                  [:m     [:omni "open-menu-anywhere"]] ]}
+
+         ; Defy: backspace acts as the space-mode leader (mirror of the block above)
+         {:des "defy backspace-mode: same as space-mode, Defy only"
+          :rules [:defy-bs-mode
+                  ;; workspaces (bare digit = switch)
+                  [:1 [:omni "switch-workspace 1"]]
+                  [:2 [:omni "switch-workspace 2"]]
+                  [:3 [:omni "switch-workspace 3"]]
+                  [:4 [:omni "switch-workspace 4"]]
+                  [:5 [:omni "switch-workspace 5"]]
+                  [:6 [:omni "switch-workspace 6"]]
+                  [:7 [:omni "switch-workspace 7"]]
+                  [:8 [:omni "switch-workspace 8"]]
+                  [:9 [:omni "switch-workspace 9"]]
+
+                  ; [:q [:omni "toggle-quake-terminal"]]
+                  ;; focus commands
+                  [:h [:omni "focus left"]]
+                  [:j [:omni "focus down"]]
+                  [:k [:omni "focus up"]]
+                  [:l [:omni "focus right"]]
+                  [:n   [:omni "focus-monitor next"]]
+                  [:p   [:omni "focus-monitor prev"]]
+                  [:tab [:omni "focus previous"]]
+                  [:open_bracket  [:omni "focus-column first"]]
+                  [:close_bracket [:omni "focus-column last"]]
+  
+                  ;; enhancements
+                  [:s "~/bin/syswatch"] ;; jump to/from the Syswatch scratch workspace (8) running syswatch
+                  [:i "~/bin/karabiner-hud"] ;; pop up a searchable list of these key mappings
+
+                  ;; columns
+                  [:comma  [:omni "cycle-size backward"]]
+                  [:period [:omni "cycle-size forward"]]
+                  [:hyphen     [:omni "set-container-primary-span -10%"]]
+                  [:equal_sign [:omni "set-container-primary-span +10%"]]
+                  ; [:f [:omni "expand-container-to-available-primary-span"]]
+                  [:b   [:omni "balance-sizes"]]
+                  [:r   [:omni "reset-window-secondary-span"]]
+                  [:t [:omni "toggle-column-tabbed"]]
+                  [:c [:omni "center-column"]]
+                  [:f [:omni "toggle-fullscreen"]]
+                  [:o [:omni "toggle-overview"]]
+                  [:semicolon [:omni "toggle-workspace-layout"]]
+                  [:grave_accent_and_tilde [:omni "toggle-quake-terminal"]]
+                  [:slash [:omni "open-command-palette"]]
+                  [:m     [:omni "open-menu-anywhere"]] ]}
+                  ; [:!Sn [:omni "focus-monitor last"]]
+                  ; [:!Shyphen     [:omni "set-window-secondary-span -10%"]]
+                  ; [:!Sequal_sign [:omni "set-window-secondary-span +10%"]]
+                  ; [:!Scomma  [:omni "move-column left"]]
+                  ; [:!Speriod [:omni "move-column right"]]
+                  ; [:!Sopen_bracket  [:omni "move-column-to-first"]]
+                  ; [:!Sclose_bracket [:omni "move-column-to-last"]]
+                  ; [:!T1 [:omni "focus-column 1"]]
+                  ; [:!T2 [:omni "focus-column 2"]]
+                  ; [:!T3 [:omni "focus-column 3"]]
+                  ; [:!T4 [:omni "focus-column 4"]]
+                  ; [:!T5 [:omni "focus-column 5"]]
+                  ; [:!T6 [:omni "focus-column 6"]]
+                  ; [:!T7 [:omni "focus-column 7"]]
+                  ; [:!T8 [:omni "focus-column 8"]]
+                  ; [:!T9 [:omni "focus-column 9"]]
+
+         ; {:des "Defy: space tap = space, hold = control"
+         ;  :rules [
+         ;  [:##spacebar :left_control [:defy]
+         ;   {:alone :spacebar :held :left_control :params { :alone 120 :held 150 } }] ]}
+         ;
+
+         {:des "Ctrl-J/K produce Down/Up outside terminals"
+          :rules [[:!Tj :down_arrow  [:!terminals :!ghostty :!omniwm]]
+                  [:!Tk :up_arrow    [:!terminals :!ghostty :!omniwm]]
+                  [:!Th :left_arrow  [:vim_mode]]
+                  [:!Tl :right_arrow [:vim_mode]] ]}
+  ]  ;; end main
+} ;; end
+;;
+;;
+;;
+;; ---------------------------------
+;; !  | means mandatory
+;; #  | means optional
+;; C  | left_command
+;; T  | left_control
+;; O  | left_option
+;; S  | left_shift
+;; F  | fn
+;; Q  | right_command
+;; W  | right_control
+;; E  | right_option
+;; R  | right_shift
+;; P  | caps_lock
+;; !! | mandatory command + control + optional + shift (hyper)
+;; ## | optional any;;
+
+;; Install via brew: `brew install yqrashawn/goku/goku`
+
+;; karabiner docs: ;; https://pqrs.org/osx/karabiner/json.html#complex_modifications-manipulator-definition
+;; <other options> includs ~to_if_alone~,f,a ~to_if_held_down~,~to_after_key_up~, ~to_delayed_action~ and ~parameters~.
+
+;; (custom variables) & modifiers -> Advanced
+;; https://github.com/yqrashawn/GokuRakuJoudo/blob/master/examples.org#custom-variable
+
+;; Examples: https://github.com/yqrashawn/GokuRakuJoudo/blob/master/examples.org
+;; https://gist.github.com/kaushikgopal/ff7a92bbc887e59699c804b59074a126
+;; https://github.com/kchen0x/k-goku/blob/master/karabiner.edn
+
+;; each manipulator has a description and multiple rules
+
+;;{:des "..."                               ;; -> description
+;; :rules[
+;;          [<from>  <to>  <conditions>]    ;; -> rule 1
+;;          [<from>  <to>  <conditions>]    ;; -> rule 2
+;; ]}
+
+;; rule [:period ["period-mode" 1] nil {:afterup ["period-mode" 0] :alone :period}]
+;;       |_____| |_______________| |_| |_________________________________________|
+;;        <from>    <to>      <conditions>         <other options>
+;;
+;; karabiner docs: ;; https://pqrs.org/osx/karabiner/json.html#complex_modifications-manipulator-definition
+;; <other options> includs ~to_if_alone~, ~to_if_held_down~,~to_after_key_up~, ~to_delayed_action~ and ~parameters~.
+;;
+
+;; (custom variables) & modifiers -> Advanced
+;; https://github.com/yqrashawn/GokuRakuJoudo/blob/master/examples.org#custom-variable
+;;
+;;a
+;; {:des "testing"
+;;  :rules [[:##d [{:key :vk_none}] nil {:held {:key :left_shift} :alone :d :params {:held 500 :alone 200}}
+;; ]]}
+; {:des "Farting Rround"
+;  :rules [[:a [:!Sc :o :n :s :o :l :!Se]]]}
+;; {:des "A sends ALT when held, a when tapped"
+;;           {:held :left_shift
+;;            :alone [{:key :f :halt true}]
+;;            :delay [{:calceled :f }]
+;;            :params {:delay 200 :held 200}}]]}
+;; {:des "Disable Left/Right Shift"
+;;  :rules [[:left_shift :vk_none] [:right_shift :vk_none]]}
+
+;; {:des "Swap up/down arrows"
+;;  :rules [[:up_arrow :down_arrow] [:down_arrow :up_arrow]]}
