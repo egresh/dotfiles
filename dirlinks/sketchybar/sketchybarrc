@@ -1,5 +1,10 @@
 #!/usr/bin/env lua
 
+-- stdout goes to a log file, so it's fully buffered, and every sbar.exec child writes out its copy
+-- of whatever is pending when it exits: one error became millions of log lines. Line buffering
+-- leaves nothing pending. Remove once SbarLua fixes it: github.com/FelixKratz/SbarLua/issues/65
+io.stdout:setvbuf("line")
+
 -- This is only needed once to install the sketchybar module
 -- (or for an update of the module)
 -- os.execute("[ ! -d $HOME/.local/share/sketchybar_lua/ ] && (git clone https://github.com/FelixKratz/SbarLua.git /tmp/SbarLua && cd /tmp/SbarLua/ && make install && rm -rf /tmp/SbarLua/)")
