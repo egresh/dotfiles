@@ -14,3 +14,6 @@ packages/fish/dot-config/fish/completions/omniwmctl.fish
 # fish: machine state
 packages/fish/dot-config/fish/fish_variables
 packages/fish/dot-config/fish/conf.d/
+
+# omniwm: backups it writes next to settings.toml (settings.toml.corrupt, .pre-v1)
+packages/omniwm/dot-config/omniwm/settings.toml.*
