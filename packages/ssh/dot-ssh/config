@@ -1,0 +1,20 @@
+# Keys come from 1Password: each SSH key item has a bookmark URL (ssh://github.com,
+# ssh://github-earl), and Settings > Developer > "Generate SSH config file with bookmarks"
+# writes the matching host-to-key rules into ~/.ssh/1Password/config.
+#
+# The Include must stay first. Its rules use `Match Host`, which checks the current host name;
+# once the github-earl block below sets HostName github.com, the alias no longer matches and
+# earl-gresh would sign in with the egresh key.
+Include ~/.ssh/1Password/config
+
+# earl-gresh account: git@github-earl:earl-gresh/<repo>.git
+Host github-earl
+  HostName github.com
+  User git
+
+# egresh account (default)
+Host github.com
+  User git
+
+Host *
+  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
