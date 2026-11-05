@@ -5,6 +5,8 @@ fish_add_path --move --path /opt/homebrew/bin /opt/homebrew/sbin
 fish_add_path --path --append $HOME/bin $HOME/.local/bin
 
 set -x EDITOR $HOME/bin/sl
+set -g fish_greeting
+
 set -x LANG "en_US.UTF-8"
 set -x LESS JeFXnimR
 

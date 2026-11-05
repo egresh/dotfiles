@@ -18,6 +18,7 @@ vim.opt.wildmode = "full"
 vim.g.autoformat = false
 -- vim.opt.autochdir = true
 vim.opt.scrolloff = 10
+vim.opt.relativenumber = false
 --vim.g.snacks_animate = false
 vim.o.background = "dark" -- or "light" for light mode
 
