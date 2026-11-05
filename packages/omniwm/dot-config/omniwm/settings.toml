@@ -1141,6 +1141,16 @@ binding = "Unassigned"
 id = "toggleSystemStats"
 
 [[monitorGapOverrides]]
+id = "B1F7A0C2-5D3E-4C8B-9A61-7E2D4F0B3C11"
+monitorDisplayId = 1
+monitorDisplayUUID = "37D8832A-2D66-02CA-B9F7-8F30A301B230"
+monitorName = "Built-in Retina Display"
+outerGapBottom = 0.0
+outerGapLeft = 5.0
+outerGapRight = 5.0
+outerGapTop = 5.0
+
+[[monitorGapOverrides]]
 id = "E2DE2CAE-B283-41C7-92AB-8526CD63F1E5"
 monitorDisplayId = 5
 monitorName = "DELL U4323QE"

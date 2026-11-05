@@ -917,16 +917,31 @@ local function refresh_floating()
 end
 
 local function render(payload)
-	local mon = payload and payload.monitors and payload.monitors[1]
-	if not mon then
+	local monitors = payload and payload.monitors
+	if type(monitors) ~= "table" or not monitors[1] then
 		return
 	end
 
+	-- The bar sits on one display (bar.lua), but workspaces live on every
+	-- monitor, so show them all. isFocused is per monitor (each has its own
+	-- active workspace); only the one on the monitor being interacted with is
+	-- the real focus.
+	local active_id = payload.interactionMonitorId
+	local active_mon = monitors[1]
 	local present = {}
-	for _, ws in ipairs(mon.workspaces or {}) do
-		if type(ws.number) == "number" then
-			present[ws.number] = true
-			render_workspace(ws)
+	for _, mon in ipairs(monitors) do
+		local is_active = (active_id == nil) or (mon.id == active_id)
+		if is_active then
+			active_mon = mon
+		end
+		for _, ws in ipairs(mon.workspaces or {}) do
+			if type(ws.number) == "number" and not present[ws.number] then
+				present[ws.number] = true
+				if not is_active then
+					ws.isFocused = false
+				end
+				render_workspace(ws)
+			end
 		end
 	end
 	for n = 1, MAX_WS do
@@ -935,7 +950,8 @@ local function render(payload)
 		end
 	end
 
-	render_scratchpads(mon)
+	-- Scratchpads are global; each monitor reports the same list.
+	render_scratchpads(active_mon)
 end
 
 -- ---- placement: slot the whole block in right after the iStat section ----
