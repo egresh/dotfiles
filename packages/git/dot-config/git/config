@@ -57,10 +57,17 @@
 [user]
 	email = 114691342+earl-gresh@users.noreply.github.com
 	name = Earl Gresh
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB1PZjR0OJAtmyuBEqU2xRAOxYUAU7tSq3S7yMQJOH1d
 [rerere]
 	enabled = true
 [branch]
 	sort = -committerdate
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[commit]
+	gpgsign = true
 # Commits in egresh's repos are credited to egresh (GitHub matches commits to accounts by email)
 [includeIf "hasconfig:remote.*.url:git@github.com:egresh/**"]
 	path = egresh.inc
