@@ -8,6 +8,8 @@ cd "$(dirname "$0")"
 command -v brew >/dev/null 2>&1 || { echo "Homebrew not found: install it first (https://brew.sh)" >&2; exit 1; }
 brew bundle install --no-upgrade
 
+# stow would create ~/.ssh world-readable
+mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
 for dir in packages/*/; do stow "$(basename "$dir")"; done
 
 # Karabiner and sketchybar watch their own directory for changes, so stow's per-file links won't do:
