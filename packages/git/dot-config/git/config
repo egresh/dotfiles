@@ -61,3 +61,8 @@
 	enabled = true
 [branch]
 	sort = -committerdate
+# Commits in egresh's repos are credited to egresh (GitHub matches commits to accounts by email)
+[includeIf "hasconfig:remote.*.url:git@github.com:egresh/**"]
+	path = egresh.inc
+[includeIf "hasconfig:remote.*.url:https://github.com/egresh/**"]
+	path = egresh.inc
