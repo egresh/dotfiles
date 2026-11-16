@@ -45,11 +45,11 @@
 
   :simlayers {
       :space-mode   {:key :spacebar}
-;     :a-mode       {:key :a}
-;     :d-mode       {:key :d}
+      :a-mode       {:key :a}
+      :d-mode       {:key :d}
 ;     :f-mode       {:key :f}
       :m-mode       {:key :m}
-;     :s-mode       {:key :s}
+      :s-mode       {:key :s}
       :v-mode       {:key :v}
       :w-mode       {:key :w}
       :k-space      {:key :spacebar :conditions [:all-kinesis]}
@@ -183,17 +183,43 @@
                   [:!Sup_arrow :!Sopen_bracket [:terminals :all_kinesis]]
                   [:!Sdown_arrow :!Sclose_bracket [:terminals :all_kinesis]] ]}
 
-;        {:des "a-mode for hjkl movement and nm enter and ui tab and ,. PageDn/Up"
-;         :rules [:a-mode
-;                  [:h :left_arrow]
-;                  [:j :down_arrow]
-;                  [:k :up_arrow]
-;                  [:l :right_arrow]
-;                  [:m :return_or_enter]
-;                  [:u :tab]
-;                  [:i :tab]
-;                  [:comma :page_down]
-;                  [:period :page_up] ]}
+         {:des "Shifted numeric mappings !@#$%^&*(send"
+          :rules [:s-mode
+                  [:u :!S1]
+                  [:i :!S2]
+                  [:o :!S3]
+                  [:j :!S4]
+                  [:k :!S5]
+                  [:l :!S6]
+                  [:m :!S7]
+                  [:comma :!S8]
+                  [:period :!S9]
+                  [:return_or_enter :!S0] ]}
+
+         {:des "Numeric mappings"
+          :rules [:d-mode
+                  [:u :1]
+                  [:i :2]
+                  [:o :3]
+                  [:j :4]
+                  [:k :5]
+                  [:l :6]
+                  [:m :7]
+                  [:comma :8]
+                  [:period :9]
+                  [:return_or_enter :0] ]}
+
+       {:des "a-mode for hjkl movement and nm enter and ui tab and ,. PageDn/Up"
+        :rules [:a-mode
+                 [:h :left_arrow]
+                 [:j :down_arrow]
+                 [:k :up_arrow]
+                 [:l :right_arrow] ]}
+                 ; [:m :return_or_enter]
+                 ; [:u :tab]
+                 ; [:i :tab]
+                 ; [:comma :page_down]
+                 ; [:period :page_up] ]}
 
 ;        {:des "f-mode for delimeters and ! ? $"
 ;         :rules [:f-mode
