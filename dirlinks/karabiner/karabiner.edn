@@ -34,6 +34,9 @@
     :open             "open -a '%s'"
     :hs               "/opt/homebrew/bin/hs -c '%s'"
     :omni             "/opt/homebrew/bin/omniwmctl command %s"
+    ;; toggle-fullscreen emits no OmniWM event, so push the new state to the
+    ;; OmniShell fullscreen widget ourselves.
+    :omnifs           "/opt/homebrew/bin/omniwmctl command toggle-fullscreen; ~/.config/omniwm/shell/widgets/fullscreen/push.sh"
     :lua              "/usr/bin/env lua %s"
     :bash             "/usr/bin/env bash %s"
     :tmux             "/opt/homebrew/bin/tmux %s"
@@ -316,7 +319,7 @@
                   [:r   [:omni "reset-window-secondary-span"]]
                   [:t [:omni "toggle-column-tabbed"]]
                   [:c [:omni "center-column"]]
-                  [:f [:omni "toggle-fullscreen"]]
+                  [:f [:omnifs]]
                   [:o [:omni "toggle-overview"]]
                   [:semicolon [:omni "toggle-workspace-layout"]]
                   [:grave_accent_and_tilde [:omni "toggle-quake-terminal"]]
@@ -363,7 +366,7 @@
                   [:r   [:omni "reset-window-secondary-span"]]
                   [:t [:omni "toggle-column-tabbed"]]
                   [:c [:omni "center-column"]]
-                  [:f [:omni "toggle-fullscreen"]]
+                  [:f [:omnifs]]
                   [:o [:omni "toggle-overview"]]
                   [:semicolon [:omni "toggle-workspace-layout"]]
                   [:grave_accent_and_tilde [:omni "toggle-quake-terminal"]]
