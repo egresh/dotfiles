@@ -4,7 +4,7 @@ lazyvim=~/.config/lazyvim
 
 cd $lazyvim
 
-file=$(fd -t f -e lua | lolcat -f |\
+file=$(fd -t f -t l -e lua | lolcat -f |\
        fzf --border=none \
            --ansi \
            --preview='bat --color=always {}')
