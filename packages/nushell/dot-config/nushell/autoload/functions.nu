@@ -72,24 +72,3 @@ def ef [query?: string] {
 def jwt_decode [file: path] {
     open --raw $file | jq -R 'split(".") | .[] | @base64d | fromjson'
 }
-
-@complete external
-def --wrapped claude [...args] {
-    if (which aws | is-not-empty) {
-        if (do { ^aws sts get-caller-identity --profile claude-code } | complete).exit_code != 0 {
-            ^aws sso login --profile claude-code
-        }
-    }
-
-    let shared = $env.HOME | path join .claude/settings.shared.json
-    let machine = $env.HOME | path join .claude/settings.machine.json
-    if not ($shared | path exists) { ^claude ...$args; return }
-
-    let merged = mktemp -t
-    if ($machine | path exists) {
-        ^jq -s '.[0] * .[1]' $shared $machine | save -f $merged
-    } else {
-        cp $shared $merged
-    }
-    try { ^claude --settings $merged ...$args } finally { rm -f $merged }
-}
