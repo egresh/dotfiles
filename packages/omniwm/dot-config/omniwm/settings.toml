@@ -10,7 +10,7 @@ tabRailAppIcons = false
 
 [borders]
 enabled = true
-width = 4.5
+width = 2.5
 
 [borders.color]
 alpha = 1.0
@@ -375,6 +375,12 @@ bundleId = "net.kovidgoyal.kitty"
 id = "50124B7D-5A9D-41E0-9533-A9B6C0132231"
 layout = "float"
 titleSubstring = "karabiner-keys"
+
+[[appRules]]
+assignToWorkspace = "9"
+bundleId = "net.kovidgoyal.kitty"
+id = "08185C12-EFA7-4FB5-92F2-811DA7E7CAA6"
+titleSubstring = "tmux:"
 
 [[hotkeys]]
 binding = "Unassigned"
@@ -1219,6 +1225,14 @@ displayName = "Syswatch"
 id = "DD380D37-B03F-49C8-B0F0-7AA7D1284721"
 layoutType = "niri"
 name = "8"
+
+[workspaces.monitorAssignment]
+type = "main"
+
+[[workspaces]]
+id = "227A5FF0-6EC5-4155-8D60-D81F4882CF8A"
+layoutType = "niri"
+name = "9"
 
 [workspaces.monitorAssignment]
 type = "main"
