@@ -7,10 +7,10 @@ base_branch: auto
 theme:
   scheme: lasergrid
   custom:
-    accent: "#0066ff"
-    success: "#33ff00"
-    warning: "#ff0099"
-    danger: "#ff0000"
+    accent: "#82aaff"
+    success: "#c3e88d"
+    warning: "#ffc777"
+    danger: "#c099ff"
     current_row_bg: "#1f5a8a"
     current_worktree_fg: "#ffffff"
     highlight_row_bg: "#243b52"
