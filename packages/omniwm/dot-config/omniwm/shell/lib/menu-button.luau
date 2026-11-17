@@ -1,13 +1,17 @@
 -- User override of default/lib/menu-button.luau (apple-menu and app-menu
--- buttons). The default caps the icon at 24px; here it fills the button like
--- the 50px workspace icons (bar height 58 -> button 54 -> icon 50).
+-- buttons). The default caps the icon at 24px; here sizes come from lib/look.luau
+-- (following the bar height): an app icon (app-menu) is "icon"-sized like the
+-- workspace icons, a symbol (the Apple logo) "symbol"-sized like the omniwm logo
+-- and status glyphs.
+
+local look = require("./look")
 
 local button = {}
 
 function button.render(ctx: Context, props)
     local style = ctx.data.bar.style
-    local size = math.max(16, style.height - 4)
-    local icon = math.max(14, size - 4)
+    local size = look.px(ctx, "slot") -- the workspace icon cell, so spacing matches
+    local icon = look.px(ctx, if props.symbol then "symbol" else "icon")
     local capsule = style.transparent and style.backgrounds
     local foreground = style.solidBlack and "#FFFFFF" or "foreground"
     local image = if props.symbol then ui.symbol{ name = props.symbol, size = icon, w = icon, h = icon, color = foreground }

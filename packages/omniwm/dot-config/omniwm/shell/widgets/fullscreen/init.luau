@@ -17,15 +17,18 @@ function render(ctx)
     if not ctx.state.fullscreen then
         return ui.box{ w = 0, h = 0 }
     end
-    -- Same footprint as an app icon: an icon-sized rounded square centred in
-    -- the icon cell (look's "icon" / "slot", so it tracks lib/look.luau).
+    -- Same footprint as an app icon: centred in the icon cell, and drawn at the
+    -- size of an app icon's visible tile (macOS icons fill ~84% of their box,
+    -- the rest is transparent margin), so it doesn't look bigger than its
+    -- neighbours. Sizes come from look's "icon" / "slot" (lib/look.luau).
     local icon, slot = look.px(ctx, "icon"), look.px(ctx, "slot")
+    local tile = math.round(icon * 0.84)
     return ui.stack{
         w = slot, h = slot,
         help = "Focused window is fullscreen",
         ui.stack{
-            w = icon, h = icon, radius = icon * 0.22, fill = "orange",
-            look.glyph{ name = "arrow.up.left.and.arrow.down.right", size = icon * 0.5, color = "background" },
+            w = tile, h = tile, radius = tile * 0.22, fill = "orange",
+            look.glyph{ name = "arrow.up.left.and.arrow.down.right", size = tile * 0.5, color = "background" },
         },
     }
 end

@@ -11,8 +11,10 @@ local M = {}
 M.ACCENT = "purple" -- glyph colour (sketchybar's magenta)
 M.PERIOD = 2 -- seconds between history samples
 M.SAMPLES = 60 -- 2 minutes of history at PERIOD
-M.WIDTH = 250 -- popout content width
-M.GRAPH = 50 -- popout graph height
+-- Popout content width and graph height, scaled with the popout text
+-- (look.popoutScale; the text itself is scaled by look.text).
+M.WIDTH = math.round(250 * look.popoutScale) -- popout content width
+M.GRAPH = math.round(50 * look.popoutScale) -- popout graph height
 
 -- Load ramp: fraction 0..1 -> colour (same thresholds as sketchybar).
 function M.ramp(fraction: number?): string

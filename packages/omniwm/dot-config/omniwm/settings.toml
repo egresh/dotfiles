@@ -69,7 +69,7 @@ size = 16.0
 bottom = 0.0
 left = 5.0
 right = 5.0
-top = 65.0
+top = 0.0
 
 [general]
 animationSpeed = 1.0
@@ -245,7 +245,7 @@ enabled = true
 excludedBundleIDs = []
 fullWidth = true
 fullWidthNotchMode = "rightOfNotch"
-height = 58.0
+height = 48.0
 hideEmptyWorkspaces = true
 hideInNativeFullscreen = false
 hoverPreviewsEnabled = true
@@ -253,7 +253,7 @@ notchActiveZoneWidth = 400.0
 notchMode = "splitActiveRight"
 notificationBadgeRefreshIntervalSeconds = 5.0
 notificationBadges = "off"
-position = "overlappingMenuBar"
+position = "belowMenuBar"
 reserveLayoutSpace = true
 revealHoldMilliseconds = 200.0
 revealModifier = "off"
@@ -266,7 +266,7 @@ systemStatsButton = true
 transparentBackground = false
 windowLevel = "normal"
 xOffset = 0.0
-yOffset = 0.0
+yOffset = 20.0
 
 [workspaceBar.accentColor]
 alpha = 1.0
@@ -1336,7 +1336,7 @@ monitorName = "Built-in Retina Display"
 outerGapBottom = 0.0
 outerGapLeft = 5.0
 outerGapRight = 5.0
-outerGapTop = 65.0
+outerGapTop = 5.0
 
 [[monitorGapOverrides]]
 id = "E2DE2CAE-B283-41C7-92AB-8526CD63F1E5"
