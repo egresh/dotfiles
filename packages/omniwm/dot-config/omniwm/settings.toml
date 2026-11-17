@@ -11,8 +11,8 @@ width = 2.5
 [borders.color]
 alpha = 1.0
 blue = 1.0
-green = 0.4
-red = 0.0
+green = 0.666667
+red = 0.509804
 
 [borders.glow]
 enabled = false
@@ -25,15 +25,15 @@ enabled = true
 
 [borders.gradient.end]
 alpha = 1.0
-blue = 1.0
-green = 1.0
-red = 0.0
+blue = 0.988235
+green = 0.882353
+red = 0.52549
 
 [borders.gradient.start]
 alpha = 1.0
 blue = 1.0
-green = 0.4
-red = 0.0
+green = 0.666667
+red = 0.509804
 
 [clipboard]
 historyEnabled = false
@@ -69,7 +69,7 @@ size = 16.0
 bottom = 0.0
 left = 5.0
 right = 5.0
-top = 0.0
+top = 62.0
 
 [general]
 animationSpeed = 1.0
@@ -154,29 +154,29 @@ zoom = 1.35
 
 [overview.backdrop]
 alpha = 1.0
-blue = 0.0
-green = 0.0
-red = 0.0
+blue = 0.211765
+green = 0.141176
+red = 0.133333
 
 [overview.windowBorders]
 
 [overview.windowBorders.hovered]
 alpha = 1.0
-blue = 0.6
-green = 0.0
+blue = 0.466667
+green = 0.780392
 red = 1.0
 
 [overview.windowBorders.normal]
 alpha = 0.5
-blue = 0.501961
-green = 0.501961
-red = 0.501961
+blue = 0.45098
+green = 0.290196
+red = 0.266667
 
 [overview.windowBorders.selected]
 alpha = 1.0
 blue = 1.0
-green = 0.4
-red = 0.0
+green = 0.666667
+red = 0.509804
 
 [quakeTerminal]
 animationDuration = 0.2
@@ -254,7 +254,7 @@ notchMode = "splitActiveRight"
 notificationBadgeRefreshIntervalSeconds = 5.0
 notificationBadges = "off"
 position = "belowMenuBar"
-reserveLayoutSpace = true
+reserveLayoutSpace = false
 revealHoldMilliseconds = 200.0
 revealModifier = "off"
 showAccentHighlights = true
@@ -271,16 +271,16 @@ yOffset = 20.0
 [workspaceBar.accentColor]
 alpha = 1.0
 blue = 1.0
-green = 0.4
-red = 0.0
+green = 0.666667
+red = 0.509804
 
 [workspaceBar.iconOverrides]
 
 [workspaceBar.textColor]
 alpha = 1.0
-blue = 0.815686
-green = 0.815686
-red = 0.815686
+blue = 0.960784
+green = 0.827451
+red = 0.784314
 
 [[appRules]]
 bundleId = "com.openai.codex"
@@ -1336,7 +1336,7 @@ monitorName = "Built-in Retina Display"
 outerGapBottom = 0.0
 outerGapLeft = 5.0
 outerGapRight = 5.0
-outerGapTop = 5.0
+outerGapTop = 62.0
 
 [[monitorGapOverrides]]
 id = "E2DE2CAE-B283-41C7-92AB-8526CD63F1E5"
@@ -1413,7 +1413,7 @@ type = "main"
 
 [[workspaces]]
 id = "227A5FF0-6EC5-4155-8D60-D81F4882CF8A"
-layoutType = "niri"
+layoutType = "dwindle"
 name = "9"
 
 [workspaces.monitorAssignment]
