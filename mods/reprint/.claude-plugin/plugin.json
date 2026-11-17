@@ -1,0 +1,1 @@
+{ "name": "reprint", "version": "0.1.0", "description": "/reprint [N]: re-print an earlier reply wrapped to the current width (runs ~/.local/bin/reprint locally)" }

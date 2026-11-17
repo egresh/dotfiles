@@ -21,6 +21,10 @@ for dir in dirlinks/*/; do
   ln -sfn "$PWD/dirlinks/$name" "$link"
 done
 
+# Claude Code refuses hooks reached through stow's per-file links, so the mod gets a directory link too
+mkdir -p "$HOME/.claude/mods"
+ln -sfn "$PWD/mods/reprint" "$HOME/.claude/mods/reprint"
+
 # sketchybarrc needs the SbarLua module, and its compiled helpers are gitignored
 if [ ! -d "$HOME/.local/share/sketchybar_lua" ]; then
   sbarlua=$(mktemp -d)
