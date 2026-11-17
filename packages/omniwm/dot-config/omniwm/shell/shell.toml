@@ -1,0 +1,14 @@
+
+[profiles]
+
+[profiles.default]
+leading = ["apple-menu", "fullscreen", "app-menu", "omniwm", "workspaces", "scratchpads"]
+theme = "tinty"
+
+[profiles.default.workspaceBar]
+autoHide = false
+backgroundOpacity = 1.0
+deduplicateAppIcons = false
+height = 58.0
+position = "overlappingMenuBar"
+transparentBackground = false

@@ -37,6 +37,11 @@ defaults write com.tinycast.app hotkey.togglePalette -string '{"combo":{"_0":{"c
 # Hammerspoon only reads ~/.hammerspoon unless told otherwise
 defaults write org.hammerspoon.Hammerspoon MJConfigFile -string '~/.config/hammerspoon/init.lua'
 
+# OmniShell's fullscreen marker needs a watcher; stow linked its LaunchAgent, launchd still has to load it
+agent=local.omnishell.fullscreen
+launchctl print "gui/$(id -u)/$agent" >/dev/null 2>&1 ||
+  launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/$agent.plist"
+
 # psql won't create the directory its HISTFILE points into
 mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/psql"
 

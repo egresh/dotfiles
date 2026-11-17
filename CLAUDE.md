@@ -52,6 +52,7 @@ Only the LazyVim config is tracked: `packages/lazyvim/dot-config/lazyvim/` (plug
 - **Fish** (primary shell): `packages/fish/dot-config/fish/config.fish` — mise, zoxide, starship, fzf, carapace. Plugins via fisher (`fish_plugins`); `fish_variables`, `conf.d/` and generated completions are gitignored.
 - **Nushell**: `packages/nushell/`.
 - **OmniWM** (tiling WM): `packages/omniwm/dot-config/omniwm/settings.toml` — also edited by the OmniWM GUI and by tinty's hook, so expect diffs. Driven via `omniwmctl`; Karabiner leader keys call it (`:omni` template).
+- **OmniShell** (OmniWM's Luau bar): `packages/omniwm/dot-config/omniwm/shell/` — `shell.toml` (bar `height` sizes every icon via `lib/look.luau`), `lib/` overrides of the bundled skin, `widgets/fullscreen/` (state pushed in by `push.sh` from the `local.omnishell.fullscreen` LaunchAgent and Karabiner leader-f). OmniWM manages `shell/default/`, `omniwm.d.luau` and `.luaurc`, and the tinty hook generates `themes/tinty.toml`: none are tracked. OmniWM also writes `shell.toml` (GUI / `omniwmctl shell …`), so expect diffs.
 - **Sketchybar**: `dirlinks/sketchybar/` — Lua (SbarLua); WM backend in `wm/omniwm/`; C helpers built via `helpers/makefile` (binaries gitignored).
 - **Karabiner**: `dirlinks/karabiner/karabiner.edn` (Goku) generates `karabiner.json`.
 - **Terminals**: `packages/kitty/`, `packages/wezterm/`.

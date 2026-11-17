@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Keeps OmniShell's fullscreen marker (shell/widgets/fullscreen) in sync on focus
+  and window changes: OmniShell gives bar widgets no fullscreen data, so push.sh
+  queries OmniWM and pushes it in. (Fullscreen toggles emit no OmniWM event; the
+  Karabiner leader-f binding runs push.sh itself.) Loaded by bootstrap.sh.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>local.omnishell.fullscreen</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>-c</string>
+    <string>exec /opt/homebrew/bin/omniwmctl watch focus,windows-changed,layout-changed --reconnect --exec "$HOME/.config/omniwm/shell/widgets/fullscreen/push.sh"</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>5</integer>
+  <key>StandardErrorPath</key>
+  <string>/tmp/omnishell-fullscreen.log</string>
+</dict>
+</plist>

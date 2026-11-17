@@ -39,6 +39,9 @@ for helper in event_providers/cpu_load/bin/cpu_load event_providers/network_load
   [ -x "dirlinks/sketchybar/helpers/$helper" ] || bad "sketchybar helper is not built: $helper"
 done
 
+launchctl print "gui/$(id -u)/local.omnishell.fullscreen" 2>/dev/null | grep -q 'state = running' ||
+  bad "OmniShell fullscreen watcher (LaunchAgent local.omnishell.fullscreen) is not running"
+
 # packages/zsh/dot-zshenv puts GNU tools first for zsh (and so for Claude Code's Bash tool).
 for t in sed find date grep; do
   zsh -c "$t --version" 2>/dev/null | grep -q GNU || bad "$t is not GNU in zsh"
