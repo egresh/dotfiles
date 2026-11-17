@@ -6,12 +6,6 @@ return {
     --     enabled = true,
     --   },
     -- },
-    filesystem = {
-      bind_to_cwd = true,
-      follow_current_file = {
-        enabled = true,
-      },
-    },
     reveal = true,
     reveal_force_cwd = true,
     -- cwd_target = {
@@ -20,7 +14,11 @@ return {
     -- },
     -- use_libuv_file_watcher = false,
     filesystem = {
+      hijack_netrw_behavior = "disabled", -- snacks explorer opens directories; both at once breaks
       bind_to_cwd = true,
+      follow_current_file = {
+        enabled = true,
+      },
       cwd_target = {
         current = "window",
         sidebar = "window",

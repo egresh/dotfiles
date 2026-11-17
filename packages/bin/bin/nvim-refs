@@ -25,17 +25,37 @@ note() { tmux run-shell -b "sleep 0.15; tmux display-popup -w $((${#1} + 4)) -h 
 
 abs() { case "$1" in /*) echo "$1";; "~/"*) echo "$HOME/${1#"~/"}";; *) echo "$root/$1";; esac; }
 
+# A ref worth offering: an existing file, or a directory written as a path
+# (deep/er/, src/lib) under the repo or ~, which nvim opens in its explorer.
+# Drops `.`, `..`, `/`, `/tmp/`, bare folder names and devices like /dev/null.
+keep() {
+  local p; p="$(abs "$1")"
+  [ -f "$p" ] && return 0
+  [ -d "$p" ] || return 1
+  case "$1" in *[A-Za-z0-9_-]/*) ;; *) return 1 ;; esac
+  case "$p" in "$root"/* | "$HOME"/*) return 0 ;; esac
+  return 1
+}
+
 # phase 1 (run-shell, no popup): scan, so an empty result never flashes the big popup.
 # phase 2 (inside the popup, NVIM_REFS_CANDS=file): just fzf the saved candidates.
 if [ -n "${NVIM_REFS_CANDS:-}" ]; then
   cands="$(cat "$NVIM_REFS_CANDS")"; rm -f "$NVIM_REFS_CANDS"
 else
 cands="$(for p in $(tmux list-panes -t "$pane" -F '#{pane_id}'); do tmux capture-pane -p -e -J ${scrollback[@]+"${scrollback[@]}"} -t "$p"; done \
-  | perl -ne 'print "$1\n" while /\e\[(?:38;5;153|94|34)m(.*?)\e\[39m/g' \
+  | perl -ne 'chomp; print "$1\n" while /\e\[(?:38;5;153|94|34)m(.*?)(?:\e\[39m|$)/g' \
   | grep -oE '~?[A-Za-z0-9_./-]+(:[0-9]+)?' \
   | awk '{a[NR]=$0} END{for(i=NR;i>0;i--)print a[i]}' \
+  | perl -e 'my $root = shift; my @refs = <STDIN>; chomp @refs; my (%n, %p);
+      # a bare filename means the repo file of that name, if there is only one
+      # (list the repo only when there is a bare name to resolve: it can be slow)
+      if (grep { !m{/} } @refs) {
+        for (`git -C "$root" ls-files -co --exclude-standard 2>/dev/null`) { chomp; (my $b = $_) =~ s{.*/}{}; $n{$b}++; $p{$b} = $_ }
+      }
+      for (@refs) { my ($f, $l) = /^(.*?)(:\d+)?$/; $l //= ""; $f = $p{$f} if ($n{$f} // 0) == 1; print "$f$l\n" }' "$root" \
   | awk '!seen[$0]++' \
-  | while IFS= read -r ref; do [ -f "$(abs "${ref%:*}")" ] && echo "$ref"; done)"
+  | while IFS= read -r ref; do keep "${ref%:*}" && echo "$ref"; done)"
+[ -n "${NVIM_REFS_LIST:-}" ] && { echo "$cands"; exit 0; }  # for tests
 if [ -z "$cands" ]; then
   [ ${#scrollback[@]} -eq 0 ] && msg="No path refs on screen (prefix+G searches history)" || msg="No path refs found"
   note "$msg"
@@ -61,19 +81,26 @@ if [ ! -S "$sock" ]; then
   exec tmux new-window -c "$root" "'$HOME/bin/sl' +$line '$(abs "${sel%:*}")'"
 fi
 
-# schedule so the RPC returns at once instead of blocking on slow BufRead/LSP autocmds
-out="$(nvim --server "$sock" --remote-expr "luaeval('(function(a) vim.schedule(function() vim.cmd.edit(vim.fn.fnameescape(a[1])) vim.api.nvim_win_set_cursor(0, {math.min(a[2], vim.api.nvim_buf_line_count(0)), 0}) vim.cmd(\"normal! zz\") end) return 1 end)(_A)', ['$(abs "${sel%:*}")', $line])" 2>&1 </dev/null)" || { note "nvim unreachable: ${sock##*/}"; exit 0; }
+# schedule so the RPC returns at once instead of blocking on slow BufRead/LSP autocmds.
+# A dir goes to the snacks explorer: :edit on one makes neo-tree and snacks both hijack it.
+out="$(nvim --server "$sock" --remote-expr "luaeval('(function(a) vim.schedule(function() if vim.fn.isdirectory(a[1]) == 1 then for _, p in ipairs(Snacks.picker.get({ source = \"explorer\" })) do p:close() end Snacks.explorer({ cwd = a[1] }) return end vim.cmd.edit(vim.fn.fnameescape(a[1])) vim.api.nvim_win_set_cursor(0, {math.min(a[2], vim.api.nvim_buf_line_count(0)), 0}) vim.cmd(\"normal! zz\") end) return 1 end)(_A)', ['$(abs "${sel%:*}")', $line])" 2>&1 </dev/null)" || { note "nvim unreachable: ${sock##*/}"; exit 0; }
 
 # the nvim may live in another window or session: walk its parent processes up to the
-# tmux pane that owns it, then switch there so the opened file is actually in view
+# tmux pane that owns it, then switch there so the opened file is actually in view.
+# A pane is listed once per session holding its window; with grouped sessions
+# (tmux-omni's hidden _omni_* views) that's several rows, so take one, preferring
+# a real session over a view.
 p="$(nvim --server "$sock" --remote-expr 'getpid()' 2>/dev/null </dev/null)"
-panes="$(tmux list-panes -a -F '#{pane_pid} #{pane_id}')"
+panes="$(tmux list-panes -a -F $'#{pane_pid}\t#{pane_id}\t#{session_name}')"  # tabs: session names may have spaces
+target=""; sess=""
 while [ -n "$p" ] && [ "$p" -gt 1 ]; do
-  target="$(echo "$panes" | awk -v p="$p" '$1==p{print $2}')"
+  IFS=$'\t' read -r target sess <<<"$(echo "$panes" | awk -F'\t' -v p="$p" '
+    $1 == p && $3 !~ /^_omni_/ { print $2 "\t" $3; done = 1; exit }
+    $1 == p && !alt            { alt = $2 "\t" $3 }
+    END                        { if (!done && alt) print alt }')"
   [ -n "$target" ] && break
   p="$(ps -o ppid= -p "$p" | tr -d ' ')"
 done
 if [ -n "${target:-}" ]; then
-  sess="$(tmux display-message -p -t "$target" '#{session_name}')"
   tmux switch-client -t "=$sess:" \; select-window -t "$target" \; select-pane -t "$target"
 fi

@@ -83,5 +83,25 @@ check "two unrelated nvims, none for this repo: new window" "$(sl)" "$MAIN +1 $M
 start "$MAIN"; s=$(mksock "$MAIN" "$MAIN" "$($TM display -p -t w:1 '#{pane_pid}')"); pick a.txt:1
 check "focus moves to the window holding the nvim" "$($TM display -p -t w '#{window_index}')" "1"
 
+# tmux-omni's hidden _omni_* views are grouped sessions: the nvim's pane is listed once per session
+start "$MAIN"; $TM new-session -d -t w -s _omni_1; s=$(mksock "$MAIN" "$MAIN" "$($TM display -p -t w:1 '#{pane_pid}')"); pick a.txt:1
+check "grouped sessions: focus still moves to the nvim's window" "$($TM display -p -t w '#{window_index}')" "1"
+check "  and the client stays on the real session" "$($TM list-clients -F '#{client_session}')" "w"
+
+start "$MAIN"; $TM rename-session -t w 'my proj'; s=$(mksock "$MAIN" "$MAIN" "$($TM display -p -t 'my proj:1' '#{pane_pid}')"); pick a.txt:1
+check "session name with a space: focus moves" "$($TM display -p -t 'my proj' '#{window_index}')" "1"
+
+# --- which refs printed in the pane become candidates --------------------------
+mkdir -p "$MAIN/deep/er"
+echo hi > "$MAIN/deep/er/only-here.rb"; echo hi > "$MAIN/deep/twin.txt"; echo hi > "$MAIN/deep/er/twin.txt"
+start "$MAIN"
+c() { printf '\\033[38;5;153m%s\\033[39m ' "$@"; }  # refs as Claude Code colours inline code
+$TM respawn-pane -k -t w:0 -c "$MAIN" "printf '$(c only-here.rb:7 deep/er/ twin.txt missing.rb . .. / /tmp/ deep /dev/null)\\033[38;5;153ma.txt\\033[39m\\n'; sleep 30"
+for _ in $(seq 50); do $TM capture-pane -p -t w:0 | grep -q 'a\.txt' && break; sleep 0.1; done
+$TM run-shell -t w:0 "NVIM_REFS_LIST=1 NVIM_REFS_SOCKDIR=$sb/socks bash $script > $sb/log/list"
+# (a.txt ends the line, where tmux leaves out the colour reset)
+check "bare names resolve if unique, missing ones drop, dirs stay" "$(tr '\n' ' ' < "$sb/log/list")" "a.txt deep/er/ deep/er/only-here.rb:7 "
+# (., .., /, /tmp/, the bare folder name `deep` and /dev/null all exist but aren't offered)
+
 [ $rc -eq 0 ] && echo "all ok"
 exit $rc
