@@ -1,0 +1,7 @@
+# Put GNU tools ahead of macOS's BSD ones, unprefixed (sed, find, date, ...).
+# zsh only: fish is the interactive shell, so this mainly affects Claude Code's Bash tool.
+for p in coreutils findutils gnu-sed grep gawk gnu-tar diffutils; do
+  d=/opt/homebrew/opt/$p/libexec/gnubin
+  [[ -d $d ]] && path=($d $path)
+done
+unset p d

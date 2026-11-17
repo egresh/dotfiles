@@ -94,6 +94,14 @@ brew "nushell"
 brew "ollama", restart_service: :changed
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
+# GNU userland, unprefixed via gnubin in ~/.zshenv (packages/zsh)
+brew "coreutils"
+brew "diffutils"
+brew "findutils"
+brew "gawk"
+brew "gnu-sed"
+brew "gnu-tar"
+brew "grep"
 # AI coding agent, built for the terminal
 brew "opencode"
 # CLI for Postgres with auto-completion and syntax highlighting
