@@ -1,0 +1,465 @@
+#!/usr/bin/env bash
+# tmux-omni — show each tmux window as its own Kitty OS window, tiled by OmniWM,
+# with one OmniWM workspace per tmux session. tmux stays the source of truth.
+#
+# Each tmux window gets a "view": a hidden grouped session (_omni_<window id>)
+# pinned to that window, attached from an OS window of one shared kitty
+# instance (--single-instance), so it's a single app in the Dock and app switcher.
+# A view is alive while its session has a client attached. Each view is locked
+# to its window: its status line shows only that window's tab, and switching
+# windows inside it snaps back (prefix c still works: the new window gets its
+# own kitty window).
+#
+#   tmux-omni toggle          enable/disable (prefix O); enabling syncs the session
+#   tmux-omni sync [session]  create missing views, move them, switch workspace
+#   tmux-omni hook <client> <session>   client-session-changed hook
+#   tmux-omni cleanup         kill views whose tmux window is gone
+#   tmux-omni detached        client-detached hook (a kitty window was closed)
+#   tmux-omni recolor         re-apply frame colours from the tinty kitty theme
+#   tmux-omni off             disable and close every view
+#
+# Going to a session's workspace remembers the one you came from
+# (@omni-return-workspace); once the last kitty window is gone (off, exiting
+# the windows, or closing them) you're taken back there, unless you've already
+# moved to a workspace that isn't tmux-omni's.
+#
+# Options: @omni-enabled (global), @omni-workspaces (global pool of numbered
+# OmniWM workspaces, default "3 4 5"), @omni-workspace (per session, claimed
+# from the pool on sync; set it yourself to pin a session). A pool claim is
+# marked @omni-claimed and released once the session has no kitty windows
+# (on the next sync, or by off); a pin is kept.
+
+set -euo pipefail
+shopt -u patsub_replacement 2>/dev/null || true  # bash 5.2: no "&" in ${x//p/r}
+
+PREFIX=_omni_
+KITTY=${TMUX_OMNI_KITTY:-/Applications/kitty.app/Contents/MacOS/kitty}
+[[ -x $KITTY ]] || KITTY=$(command -v kitty)
+
+log() { tmux display-message "tmux-omni: $*" 2>/dev/null || echo "tmux-omni: $*" >&2; }
+opt() { tmux show-options -gqv "$1"; }
+
+enabled() { [[ $(opt @omni-enabled) == on ]]; }
+
+# True if some view of the session has a kitty window attached.
+has_views() {
+  tmux list-sessions -F $'#{session_name}\t#{session_group}\t#{session_attached}' |
+    awk -F'\t' -v p="$PREFIX" -v g="$1" 'index($1, p) == 1 && $2 == g && $3 > 0 {f = 1} END {exit !f}'
+}
+
+unclaim() {
+  tmux set-option -qu -t "=$1:" @omni-workspace \; set-option -qu -t "=$1:" @omni-claimed 2>/dev/null || true
+}
+
+# Release the pool claims of sessions (other than $1) with no kitty windows.
+release_idle() {
+  local s claimed
+  while IFS=$'\t' read -r s claimed; do
+    [[ $claimed == on && $s != "$PREFIX"* && $s != "${1-}" ]] || continue
+    has_views "$s" || unclaim "$s"
+  done < <(tmux list-sessions -F $'#{session_name}\t#{@omni-claimed}')
+}
+
+# Name of the OmniWM workspace you're on ("" if OmniWM doesn't answer). --current,
+# not --focused: --focused follows the focused window, so it's empty on an
+# empty workspace.
+focused_workspace() {
+  omniwmctl query workspaces --current --fields raw-name --format json 2>/dev/null |
+    jq -r '.result.payload.workspaces[0].rawName // empty' 2>/dev/null || true
+}
+
+# True if any view (of any session) still has a kitty window attached.
+any_view_alive() {
+  tmux list-sessions -F $'#{session_name}\t#{session_attached}' |
+    awk -F'\t' -v p="$PREFIX" 'index($1, p) == 1 && $2 > 0 {f = 1} END {exit !f}'
+}
+
+# Once no kitty windows are left, go back to the workspace you were on before
+# tmux-omni switched you away. $1 is the workspace you were on when the windows
+# went away: if it isn't one of tmux-omni's (the pool or a session's
+# claim/pin), you'd gone elsewhere yourself and stay put. Pass it in from before
+# the windows close: once a workspace empties, OmniWM moves focus on its own.
+# "-" skips the check (closing/exiting the last window: you were on it).
+return_home() {
+  local cur=${1:--} back ours
+  back=$(opt @omni-return-workspace)
+  [[ -n $back ]] || return 0
+  any_view_alive && return 0
+  # A kitty window that's still starting isn't attached yet; look again.
+  sleep 0.5
+  any_view_alive && return 0
+  tmux set-option -gqu @omni-return-workspace
+  if [[ $cur != - ]]; then
+    ours=" $(opt @omni-workspaces) $(tmux list-sessions -F '#{@omni-workspace}' | tr '\n' ' ') "
+    [[ $cur != "$back" && $ours == *" $cur "* ]] || return 0
+  fi
+  omniwmctl command switch-workspace "$back" >/dev/null 2>&1 || true
+}
+
+# Workspace for a session: its pinned/claimed one, else the first free pool slot.
+workspace_for() {
+  local session=$1 ws
+  release_idle "$session"
+  ws=$(tmux show-options -qv -t "=$session:" @omni-workspace)
+  [[ -n $ws ]] && { echo "$ws"; return; }
+  local taken pool
+  taken=$(tmux list-sessions -F '#{@omni-workspace}' | sort -u)
+  pool=$(opt @omni-workspaces); pool=${pool:-3 4 5}
+  for ws in $pool; do
+    if ! grep -qx "$ws" <<<"$taken"; then
+      tmux set-option -q -t "=$session:" @omni-workspace "$ws" \; set-option -q -t "=$session:" @omni-claimed on
+      echo "$ws"; return
+    fi
+  done
+  return 1
+}
+
+INSTANCE_GROUP=tmux-omni
+# Remote control for the tmux-omni kitty instance only (kitty appends -<pid>).
+KITTY_SOCK=${TMPDIR:-/tmp}/tmux-omni-kitty.$(id -u).sock
+LOCK=${TMPDIR:-/tmp}/tmux-omni.$(id -u).lock
+
+# Hooks run in the background and can overlap; serialise so a window isn't
+# spawned twice. A lock older than 30s is assumed stale.
+lock() {
+  for _ in $(seq 100); do
+    mkdir "$LOCK" 2>/dev/null && { trap 'rmdir "$LOCK" 2>/dev/null' EXIT; return; }
+    (( $(date +%s) - $(stat -f %m "$LOCK" 2>/dev/null || date +%s) > 30 )) && rmdir "$LOCK" 2>/dev/null
+    sleep 0.1
+  done
+  log "timed out waiting for lock"; exit 1
+}
+
+view_alive() {
+  [[ $(tmux display-message -p -t "=$1:" '#{session_attached}' 2>/dev/null) -gt 0 ]] 2>/dev/null
+}
+
+# Socket of the running tmux-omni kitty instance, if there is one.
+kitty_socket() {
+  local s
+  for s in "$KITTY_SOCK"-*; do
+    [[ -S $s ]] && kill -0 "${s##*-}" 2>/dev/null && { echo "$s"; return; }
+    rm -f "$s" 2>/dev/null
+  done
+  return 1
+}
+
+# "<platform window id> <view session>" for every kitty OS window running a view.
+kitty_views() {
+  local s
+  s=$(kitty_socket) || return 1
+  "$KITTY" @ --to "unix:$s" ls 2>/dev/null | jq -r --arg p "=$PREFIX" '
+    .[] | .platform_window_id as $w
+    | [.tabs[].windows[].cmdline[]] | map(select(startswith($p)))[0] // empty
+    | "\($w) \(.[1:])"'
+}
+
+# Create (if needed) the hidden session pinned to window $2 of group $1.
+make_view() {
+  local group=$1 win=$2 view=$PREFIX${2#@}
+  tmux has-session -t "=$view" 2>/dev/null ||
+    tmux new-session -d -t "$group" -s "$view"
+  tmux set-option -q -t "$view" @omni-window "$win" \; \
+    select-window -t "$view:$win"
+  lock_view "$view" "$group"
+}
+
+# The default status line with the window list cut down to the current window.
+VIEW_STATUS='#[align=left range=left #{E:status-left-style}]#[push-default]#{T;=/#{status-left-length}:status-left}#[pop-default]#[norange default]#[list=on align=#{status-justify}]#[range=window|#{window_index} list=focus #{?#{!=:#{E:window-status-current-style},default},#{E:window-status-current-style},#{E:window-status-style}}]#[push-default]#{T:window-status-current-format}#[pop-default]#[norange list=on default]#[nolist align=right range=right #{E:status-right-style}]#[push-default]#{T;=/#{status-right-length}:status-right}#[pop-default]#[norange default]'
+
+# Frame around each kitty window while it's unfocused (OmniWM borders only the
+# focused one). A real kitty window border (draw_window_borders_for_single_window),
+# not padding: kitty only fills whole cells and centres the grid, and padding
+# shares the background colour with the leftover pixels, which made a padding
+# frame thick and uneven; kitty puts the leftover inside the border instead.
+# The border is FRAME_WIDTH px everywhere, in FRAME_COLOR while the kitty window
+# is unfocused and invisible while focused, so only OmniWM's border shows then.
+# TMUX_OMNI_FRAME_WIDTH=0 turns it off. See launch_view for the margin workaround.
+# Colours follow tinty via its kitty theme: the frame is the theme's
+# active_border_color (base03, the scheme's muted colour) unless
+# TMUX_OMNI_FRAME_COLOR is set, and the focused border is the theme background.
+# tinty's apply-extras.rb runs `tmux-omni recolor` after a theme change.
+FRAME_WIDTH=${TMUX_OMNI_FRAME_WIDTH:-2}
+KITTY_THEME=$HOME/.config/kitty/current-theme.conf
+
+theme_color() { awk -v k="$1" '$1 == k {print $2; exit}' "$KITTY_THEME" 2>/dev/null || true; }
+
+# "<focused border colour> <unfocused border colour>" from the current theme.
+frame_colors() {
+  local bg fc
+  bg=$(theme_color background)
+  fc=${TMUX_OMNI_FRAME_COLOR:-$(theme_color active_border_color)}
+  echo "${bg:-#000000} ${fc:-#585858}"
+}
+
+# Status line of a view whose kitty window isn't focused: the same content in grey.
+UNFOCUSED_FG=${TMUX_OMNI_UNFOCUSED_FG:-#6c6c6c}
+
+# Make a view show only its own window: one tab in the status line, the real
+# session name instead of _omni_<n>, and any window switch snapped straight back.
+# The status line is in full colour only while its kitty window has focus
+# (client_flags has "focused"; needs focus-events on), grey otherwise.
+lock_view() {
+  local view=$1 group=$2 left pat='#S' hash='#' name dim
+  name=${group//"$hash"/##}
+  left=$(tmux show-options -gqv status-left)
+  dim="#[align=left fg=$UNFOCUSED_FG] $name #[align=#{status-justify}]#I:#W#{?window_zoomed_flag, (zoomed),}"
+  tmux set-option -q -t "=$view:" status-format[0] "#{?#{m:*focused*,#{client_flags}},$VIEW_STATUS,$dim}" \; \
+    set-option -q -t "=$view:" status-left "${left//"$pat"/$name}" \; \
+    set-hook -t "=$view:" session-window-changed \
+      "run-shell -b \"tmux select-window -t '=#{session_name}:#{@omni-window}' 2>/dev/null || true\"" \; \
+    set-hook -t "=$view:" client-focus-in 'run-shell -b "tmux refresh-client -S -t '\''#{hook_client}'\'' 2>/dev/null || true"' \; \
+    set-hook -t "=$view:" client-focus-out 'run-shell -b "tmux refresh-client -S -t '\''#{hook_client}'\'' 2>/dev/null || true"'
+}
+
+launch_view() {
+  local session=$1 win=$2
+  local view=$PREFIX${win#@}
+  make_view "$session" "$win"
+  # destroy-unattached only once attached, or tmux reaps the view before kitty
+  # starts. @omni-tty goes on the *window* (it outlives the view session) so the
+  # hook can tell which window a client belongs to after it switches away.
+  # titlebar-only keeps the macOS frame and shadow (your kitty.conf hides all
+  # decorations). The frame is a kitty window border (see FRAME_WIDTH).
+  # The instance quits with its last window instead of lingering in the app
+  # switcher, and listens on a private socket so sync can map its windows.
+  #
+  # kitty 0.50 bug: a single window reserves no room for its border
+  # (layout_single_window_group only does when must_draw_borders), so the border
+  # is drawn just outside the visible area. A margin at least as wide gives it
+  # room: margin is in pt (>= 1px per pt), the border in px, so equal numbers suffice.
+  # The focused window's border is drawn in the theme background so only
+  # OmniWM's border shows; active_border_color=none would not hide it, kitty
+  # then uses the inactive colour.
+  local frame=() active inactive
+  if ((FRAME_WIDTH > 0)); then
+    read -r active inactive < <(frame_colors)
+    frame=(-o draw_window_borders_for_single_window=yes
+      -o window_border_width="${FRAME_WIDTH}px" -o window_margin_width="$FRAME_WIDTH"
+      -o active_border_color="$active" -o inactive_border_color="$inactive"
+      -o bell_border_color="$inactive")
+  fi
+  env -u TMUX nohup "$KITTY" --single-instance --instance-group "$INSTANCE_GROUP" \
+    -o hide_window_decorations=titlebar-only -o macos_quit_when_last_window_closed=yes \
+    ${frame[@]+"${frame[@]}"} \
+    -o allow_remote_control=socket-only -o listen_on="unix:$KITTY_SOCK" \
+    --title "tmux:$session" tmux attach-session -t "=$view" \; \
+    set-option destroy-unattached on \; set-option -wF @omni-tty '#{client_tty}' \
+    >/dev/null 2>&1 &
+  disown
+}
+
+# Launch kitty windows for the given tmux windows all at once, then match each
+# OmniWM window to its tmux window via kitty's remote control.
+open_views() {
+  local session=$1 ws=$2 win; shift 2
+  local wins=("$@")
+  # Without a running instance, parallel launches would each start their own:
+  # launch one and wait for the instance's socket before the rest.
+  if ! kitty_socket >/dev/null; then
+    launch_view "$session" "${wins[0]}"
+    for _ in $(seq 50); do kitty_socket >/dev/null && break; sleep 0.1; done
+    wins=("${wins[@]:1}")
+  fi
+  for win in ${wins[@]+"${wins[@]}"}; do launch_view "$session" "$win"; done
+
+  # Kitty knows about a window before OmniWM does: keep looking until every
+  # view's kitty window is known to both, then move each to the workspace.
+  local map omni pid id placed=() left
+  for _ in $(seq 50); do
+    map=$(kitty_views || true)
+    omni=$(omniwmctl query windows --bundle-id net.kovidgoyal.kitty --format json 2>/dev/null |
+      jq -r '.result.payload.windows[] | "\(.windowId) \(.id)"')
+    left=0
+    for win in "$@"; do
+      [[ " ${placed[*]-} " == *" $win "* ]] && continue
+      pid=$(awk -v v="$PREFIX${win#@}" '$2 == v {print $1; exit}' <<<"$map")
+      id=$(awk -v w="$pid" '$1 == w {print $2; exit}' <<<"$omni")
+      if [[ -n $pid && -n $id ]]; then
+        tmux set-option -wq -t "$win" @omni-wid "$id"
+        omniwmctl window move-to-workspace "$id" "$ws" >/dev/null || true
+        placed+=("$win")
+      else
+        left=$((left + 1))
+      fi
+    done
+    ((left == 0)) && return
+    sleep 0.1
+  done
+  log "couldn't place $left kitty window(s); try prefix O twice"
+}
+
+# sync [session] [focus]: focus is "first", "current" (default: the window the
+# session is on) or a tmux window id; that window's kitty window gets focus.
+sync() {
+  local session=${1:-$(tmux display-message -p '#{session_name}')} focus=${2:-current}
+  # A view session (e.g. new-window from inside a view) syncs its group.
+  [[ $session == "$PREFIX"* ]] && session=$(tmux display-message -p -t "=$session:" '#{session_group}')
+  [[ -z $session || $session == "$PREFIX"* ]] && return
+  local ws
+  ws=$(workspace_for "$session") || { log "no free workspace in pool"; return 1; }
+
+  # Drop marks left by views whose kitty window was closed, so a recycled tty
+  # can't be mistaken for one.
+  local ttys w t
+  ttys=$(tmux list-clients -F '#{client_tty}')
+  while IFS=$'\t' read -r w t; do
+    [[ -n $t ]] && ! grep -qxF "$t" <<<"$ttys" && tmux set-option -wqu -t "$w" @omni-tty
+  done < <(tmux list-windows -a -F $'#{window_id}\t#{@omni-tty}')
+
+  # Remember where you came from (for return_home), then go to the workspace
+  # first so new windows open there, not wherever you are.
+  local here
+  here=$(focused_workspace)
+  [[ -n $here && $here != "$ws" ]] && tmux set-option -gq @omni-return-workspace "$here"
+  omniwmctl command switch-workspace "$ws" >/dev/null || true  # exits 1 ("no_change") if already there
+
+  local win missing=()
+  for win in $(tmux list-windows -t "=$session" -F '#{window_id}'); do
+    view_alive "$PREFIX${win#@}" || tmux set-option -wqu -t "$win" @omni-wid
+    view_alive "$PREFIX${win#@}" || missing+=("$win")
+  done
+  ((${#missing[@]})) && open_views "$session" "$ws" "${missing[@]}"
+
+  case $focus in
+    first) focus=$(tmux list-windows -t "=$session" -F '#{window_id}' | head -1) ;;
+    current) focus=$(tmux display-message -p -t "=$session:" '#{window_id}') ;;
+  esac
+  local id
+  id=$(tmux show-options -wqv -t "$focus" @omni-wid 2>/dev/null) || true
+  [[ -n $id ]] && { omniwmctl window navigate "$id" >/dev/null || true; }
+}
+
+# A client's format value. (display-message -c doesn't evaluate formats for
+# that client, so look it up in list-clients.)
+client_fmt() {
+  tmux list-clients -F "#{client_name}"$'\t'"$2" | awk -F'\t' -v c="$1" '$1 == c {print $2; exit}'
+}
+
+# True if the client runs inside the shared tmux-omni kitty instance.
+in_omni_kitty() {
+  local pid
+  pid=$(client_fmt "$1" '#{client_pid}')
+  [[ -n $pid ]] || return 1
+  for _ in 1 2 3 4; do
+    pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+    [[ -z $pid || $pid == 1 ]] && return 1
+    ps -o command= -p "$pid" | grep -q -- "--instance-group $INSTANCE_GROUP" && return 0
+  done
+  return 1
+}
+
+# The window a view client was pinned to, from the tty it marked.
+window_for_client() {
+  local tty
+  tty=$(client_fmt "$1" '#{client_tty}')
+  tmux list-windows -a -F $'#{window_id}\t#{@omni-tty}' |
+    awk -F'\t' -v t="$tty" '$2 == t {print $1; exit}'
+}
+
+hook() {
+  local client=$1 session=$2
+  enabled || return 0
+  [[ $session == "$PREFIX"* ]] && return 0
+  lock
+  # Switched sessions from inside a view (sesh, the workmux sidebar, ...). That
+  # view's session was reaped (destroy-unattached) and the client now shows the
+  # target session.
+  if in_omni_kitty "$client"; then
+    local win group view ws claimed
+    win=$(window_for_client "$client")
+    if [[ -n $win ]]; then
+      group=$(tmux display-message -p -t "$win" '#{session_group}')
+      if [[ -n $group && $group != "$session" ]]; then
+        # Another session: replace. Close every kitty window of the old session
+        # (including this one) and hand its workspace to the new session.
+        ws=$(tmux show-options -qv -t "=$group:" @omni-workspace)
+        claimed=$(tmux show-options -qv -t "=$group:" @omni-claimed)
+        close_group "$group"
+        tmux set-option -wqu -t "$win" @omni-tty \; set-option -wqu -t "$win" @omni-wid
+        tmux detach-client -t "$client" 2>/dev/null || true
+        unclaim "$group"
+        if [[ -n $ws && -z $(tmux show-options -qv -t "=$session:" @omni-workspace) ]]; then
+          tmux set-option -q -t "=$session:" @omni-workspace "$ws"
+          [[ $claimed == on ]] && tmux set-option -q -t "=$session:" @omni-claimed on
+        fi
+      else
+        # Same session (another of its windows was picked): put this kitty
+        # window back on its own tmux window; sync focuses the picked one.
+        view=$PREFIX${win#@}
+        make_view "$group" "$win"
+        tmux switch-client -c "$client" -t "=$view"
+        tmux set-option -q -t "=$view:" destroy-unattached on
+      fi
+    fi
+  fi
+  sync "$session" current
+}
+
+# Close every view (kitty window) belonging to a session.
+close_group() {
+  local view grp
+  while IFS=$'\t' read -r view grp; do
+    if [[ $view == "$PREFIX"* && $grp == "$1" ]]; then close_view "$view"; fi
+  done < <(tmux list-sessions -F $'#{session_name}\t#{session_group}')
+}
+
+# Detach first: with detach-on-destroy off, killing the session would move the
+# kitty's client to another session instead of letting kitty exit.
+close_view() {
+  local win
+  win=$(tmux show-options -qv -t "=$1:" @omni-window 2>/dev/null) || true
+  [[ -n $win ]] && tmux set-option -wqu -t "$win" @omni-tty \; set-option -wqu -t "$win" @omni-wid 2>/dev/null
+  tmux detach-client -s "=$1" 2>/dev/null || true
+  tmux kill-session -t "=$1" 2>/dev/null || true
+}
+
+cleanup() {
+  local view win
+  for view in $(tmux list-sessions -F '#{session_name}' | grep "^$PREFIX" || true); do
+    win=$(tmux show-options -qv -t "$view" @omni-window)
+    tmux list-windows -a -F '#{window_id}' | grep -qx "$win" || close_view "$view"
+  done
+  return_home
+}
+
+# Re-read the frame colours from the kitty theme and apply them to the open
+# kitty windows (--configured: and to windows opened later by this instance).
+# Called by tinty's apply-extras.rb after a theme change; a no-op if no
+# tmux-omni kitty instance is running or the frame is off.
+recolor() {
+  ((FRAME_WIDTH > 0)) || return 0
+  local s active inactive
+  s=$(kitty_socket) || return 0
+  read -r active inactive < <(frame_colors)
+  "$KITTY" @ --to "unix:$s" set-colors --all --configured \
+    active_border_color="$active" inactive_border_color="$inactive" \
+    bell_border_color="$inactive" >/dev/null 2>&1 || true
+}
+
+off() {
+  tmux set-option -gq @omni-enabled off
+  local view where
+  where=$(focused_workspace)
+  for view in $(tmux list-sessions -F '#{session_name}' | grep "^$PREFIX" || true); do
+    close_view "$view"
+  done
+  return_home "$where"  # before release_idle, which drops the session claims return_home checks
+  release_idle
+  log "off"
+}
+
+case ${1:-} in
+  # Everything that can call return_home takes the lock, so it can't run while
+  # a sync is still launching kitty windows (no view attached yet).
+  toggle) lock; if enabled; then off; else tmux set-option -gq @omni-enabled on; sync "" first; fi ;;
+  sync) shift; if enabled; then lock; sync "$@"; fi ;;
+  hook) shift; hook "$@" ;;
+  cleanup) lock; cleanup ;;
+  # The closed window's view is reaped (destroy-unattached) right after the
+  # detach; give tmux a moment so any_view_alive doesn't still count it.
+  detached) sleep 0.3; lock; return_home ;;
+  recolor) recolor ;;
+  off) lock; off ;;
+  *) sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac
