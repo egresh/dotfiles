@@ -1,5 +1,5 @@
 -- Network throughput, ported from sketchybar's widgets/network.lua: down and up
--- rates in fixed-width fields; popout has download/upload graphs (OmniShell's
+-- rates in fixed-width fields, both blue as in sketchybar; popout has download/upload graphs (OmniShell's
 -- own networkHistory) and totals. Shared pieces in lib/metrics.luau.
 
 interval = 2
@@ -26,7 +26,7 @@ function render(ctx)
         { symbol = "arrow.down" },
         { text = metrics.rate(net and net.down), color = "blue", reserve = "999K" },
         { symbol = "arrow.up" },
-        { text = metrics.rate(net and net.up), color = "orange", reserve = "999K" },
+        { text = metrics.rate(net and net.up), color = "blue", reserve = "999K" },
     }, "Network throughput")
 end
 
