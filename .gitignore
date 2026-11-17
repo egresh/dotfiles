@@ -13,7 +13,10 @@ packages/fish/dot-config/fish/completions/omniwmctl.fish
 
 # fish: machine state
 packages/fish/dot-config/fish/fish_variables
-packages/fish/dot-config/fish/conf.d/
+packages/fish/dot-config/fish/conf.d/*
+# ...except this one: it shadows Homebrew's vendor_conf.d/mise-activate.fish so mise
+# activates in config.fish, after PATH setup, instead of before it
+!packages/fish/dot-config/fish/conf.d/mise-activate.fish
 
 # omniwm: backups it writes next to settings.toml (settings.toml.corrupt, .pre-v1)
 packages/omniwm/dot-config/omniwm/settings.toml.*

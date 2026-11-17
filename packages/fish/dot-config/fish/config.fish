@@ -1,8 +1,20 @@
+# Undo mise state inherited from a parent shell (e.g. the tmux server's environment)
+# so activation below starts clean. `mise deactivate` removes only what the parent's
+# mise added (from __MISE_DIFF), keeping PATH entries added after it (nvim's mason,
+# a venv); without this, `mise activate` would reset PATH to the parent's saved one,
+# dropping those and the PATH setup below.
+if set -q __MISE_ORIG_PATH; and test -x /opt/homebrew/bin/mise
+    MISE_SHELL=fish /opt/homebrew/bin/mise deactivate | source
+end
+
 # Add at the top
 fish_add_path --move --path /opt/homebrew/bin /opt/homebrew/sbin
 
 # Add at the bottom
 fish_add_path --path --append $HOME/bin $HOME/.local/bin
+
+# Activate mise after PATH setup so project bin dirs and tools come before Homebrew
+mise activate fish | source
 
 set -x EDITOR $HOME/bin/sl
 set -g fish_greeting
@@ -23,7 +35,7 @@ set -x XDG_STATE_HOME $HOME/.local/state
 set -x _FASD_DATA $HOME/.config/fasd/fasd_data_file
 set -x GOKU_EDN_CONFIG_FILE $XDG_CONFIG_HOME/karabiner/karabiner.edn
 set -x LUA_PATH "$HOME/dev/lua/?/init.lua;$HOME/dev/lua/?.lua;;"
-set -x PSQL_PAGER 'pspg -X -b -s 19'
+set -x PSQL_PAGER 'pspg -b -s 19 --quit-if-one-screen'
 set -x PSQLRC $XDG_CONFIG_HOME/psql/psqlrc
 set -x INPUTRC $XDG_CONFIG_HOME/readline/inputrc
 set -x SSLKEYLOGFILE "$HOME/tmp/ssl_key_logfile"
@@ -161,5 +173,5 @@ fzf --fish               | source
 carapace _carapace       | source
 
 # Added by LM Studio CLI (lms)
-set -gx PATH $PATH /Users/egresh/.lmstudio/bin
+fish_add_path --path --append $HOME/.lmstudio/bin  # (not `set PATH $PATH ...`: that re-appends in every nested shell)
 # End of LM Studio CLI section
