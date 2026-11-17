@@ -191,6 +191,13 @@ position = "center"
 provider = "ghostty"
 widthPercent = 50.0
 
+[quakeTerminal.kitty]
+
+[quakeTerminal.kitty.placement]
+heightPercent = 50.0
+position = "center"
+widthPercent = 75.0
+
 [routing]
 arrangements = []
 mode = "macOS"
@@ -1279,6 +1286,14 @@ id = "toggleShellWidget.control-center"
 
 [[hotkeys]]
 binding = "Unassigned"
+id = "toggleShellWidget.cpu"
+
+[[hotkeys]]
+binding = "Unassigned"
+id = "toggleShellWidget.gpu"
+
+[[hotkeys]]
+binding = "Unassigned"
 id = "toggleShellWidget.hidden-bar"
 
 [[hotkeys]]
@@ -1287,7 +1302,15 @@ id = "toggleShellWidget.media"
 
 [[hotkeys]]
 binding = "Unassigned"
+id = "toggleShellWidget.network"
+
+[[hotkeys]]
+binding = "Unassigned"
 id = "toggleShellWidget.notifications"
+
+[[hotkeys]]
+binding = "Unassigned"
+id = "toggleShellWidget.sensors"
 
 [[hotkeys]]
 binding = "Unassigned"
