@@ -3,6 +3,7 @@
 
 [profiles.default]
 leading = ["apple-menu", "fullscreen", "app-menu", "omniwm", "workspaces", "scratchpads"]
+trailing = ["network", "gpu", "cpu", "sensors", "media", "notifications", "volume", "wifi", "battery-details", "control-center", "system-stats", "clock"]
 theme = "tinty"
 
 [profiles.default.workspaceBar]
