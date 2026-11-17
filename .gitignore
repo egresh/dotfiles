@@ -20,3 +20,7 @@ packages/omniwm/dot-config/omniwm/settings.toml.*
 
 # claude: TypeScript types the reprint mod generates
 mods/reprint/.claude-plugin/types/
+
+# editor caches (clj-kondo / clojure-lsp)
+.clj-kondo/
+.lsp/
