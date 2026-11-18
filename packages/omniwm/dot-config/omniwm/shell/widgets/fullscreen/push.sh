@@ -2,7 +2,7 @@
 # Push the focused window's fullscreen state into the OmniShell `fullscreen`
 # widget. Run by `omniwmctl watch focus,windows-changed,layout-changed
 # --reconnect --exec <this>` (LaunchAgent local.omnishell.fullscreen) and by the
-# Karabiner leader-f binding after toggle-fullscreen. Always sends (no change
+# toggle.sh (Karabiner leader-f) after toggle-fullscreen. Always sends (no change
 # cache): widget state resets when OmniShell reloads, so a skipped send could
 # leave it stale.
 #

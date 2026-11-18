@@ -4700,7 +4700,7 @@
             "key_code" : "f"
           },
           "to" : [ {
-            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen; ~/.config/omniwm/shell/widgets/fullscreen/push.sh"
+            "shell_command" : "~/.config/omniwm/shell/widgets/fullscreen/toggle.sh"
           } ],
           "conditions" : [ {
             "name" : "space-mode",
@@ -4719,7 +4719,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen; ~/.config/omniwm/shell/widgets/fullscreen/push.sh"
+            "shell_command" : "~/.config/omniwm/shell/widgets/fullscreen/toggle.sh"
           } ],
           "from" : {
             "simultaneous" : [ {
@@ -6429,7 +6429,7 @@
             "key_code" : "f"
           },
           "to" : [ {
-            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen; ~/.config/omniwm/shell/widgets/fullscreen/push.sh"
+            "shell_command" : "~/.config/omniwm/shell/widgets/fullscreen/toggle.sh"
           } ],
           "conditions" : [ {
             "name" : "defy-bs-mode",
@@ -6448,7 +6448,7 @@
               "value" : 1
             }
           }, {
-            "shell_command" : "/opt/homebrew/bin/omniwmctl command toggle-fullscreen; ~/.config/omniwm/shell/widgets/fullscreen/push.sh"
+            "shell_command" : "~/.config/omniwm/shell/widgets/fullscreen/toggle.sh"
           } ],
           "from" : {
             "simultaneous" : [ {

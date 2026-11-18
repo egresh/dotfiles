@@ -34,9 +34,9 @@
     :open             "open -a '%s'"
     :hs               "/opt/homebrew/bin/hs -c '%s'"
     :omni             "/opt/homebrew/bin/omniwmctl command %s"
-    ;; toggle-fullscreen emits no OmniWM event, so push the new state to the
-    ;; OmniShell fullscreen widget ourselves.
-    :omnifs           "/opt/homebrew/bin/omniwmctl command toggle-fullscreen; ~/.config/omniwm/shell/widgets/fullscreen/push.sh"
+    ;; toggle-fullscreen, then raise the window and update the OmniShell
+    ;; fullscreen widget (see toggle.sh).
+    :omnifs           "~/.config/omniwm/shell/widgets/fullscreen/toggle.sh"
     :lua              "/usr/bin/env lua %s"
     :bash             "/usr/bin/env bash %s"
     :tmux             "/opt/homebrew/bin/tmux %s"
