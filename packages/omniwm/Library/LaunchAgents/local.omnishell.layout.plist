@@ -3,7 +3,8 @@
 <!--
   Keeps OmniShell's layout-mode widget (shell/widgets/layout) current: OmniShell
   gives bar widgets no layout data, so push.sh queries OmniWM and pushes it in
-  whenever a workspace's layout changes or another workspace becomes active.
+  (and whether the focused window floats) whenever focus, a window, a
+  workspace layout or the active workspace changes.
   Loaded by bootstrap.sh.
 -->
 <plist version="1.0">
@@ -14,7 +15,7 @@
   <array>
     <string>/bin/sh</string>
     <string>-c</string>
-    <string>exec /opt/homebrew/bin/omniwmctl watch layout-changed,active-workspace --reconnect --exec "$HOME/.config/omniwm/shell/widgets/layout/push.sh"</string>
+    <string>exec /opt/homebrew/bin/omniwmctl watch focus,windows-changed,layout-changed,active-workspace --reconnect --exec "$HOME/.config/omniwm/shell/widgets/layout/push.sh"</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
