@@ -313,13 +313,6 @@ minHeight = 220.0
 minWidth = 574.0
 
 [[appRules]]
-assignToWorkspace = "2"
-bundleId = "com.microsoft.teams2"
-id = "181FAD72-6195-4759-8541-D507495D5A12"
-minHeight = 495.0
-minWidth = 500.0
-
-[[appRules]]
 assignToWorkspace = "1"
 bundleId = "app.zen-browser.zen"
 id = "1CF39647-F30D-4E76-9686-79B551F1B094"
@@ -357,40 +350,10 @@ minHeight = 48.0
 minWidth = 90.0
 
 [[appRules]]
-assignToWorkspace = "2"
-bundleId = "com.microsoft.Outlook"
-id = "8ECAB78B-BCDD-4245-BC25-1609A49B1C86"
-minHeight = 650.0
-minWidth = 930.0
-
-[[appRules]]
 bundleId = "com.apple.MobileSMS"
 id = "552FB77D-BF0E-4737-90A6-B5BC6986C579"
 minHeight = 320.0
 minWidth = 660.0
-
-[[appRules]]
-assignToWorkspace = "2"
-bundleId = "com.tinyspeck.slackmacgap"
-id = "1E4CDBF0-DC68-4E0A-A7EE-9888342E5D04"
-
-[[appRules]]
-appNameSubstring = "Jira"
-assignToWorkspace = "3"
-bundleId = ""
-id = "356697F5-BA21-41F2-A904-FABF63FFEF60"
-
-[[appRules]]
-appNameSubstring = "Miro"
-assignToWorkspace = "3"
-bundleId = ""
-id = "02EACB82-BB50-4F7A-A141-200A678DA704"
-
-[[appRules]]
-appNameSubstring = "ConfigCat"
-assignToWorkspace = "3"
-bundleId = ""
-id = "6C6B5C51-1D5D-48C3-B2CA-73B55C3F01D7"
 
 [[appRules]]
 assignToWorkspace = "1"
@@ -401,12 +364,6 @@ id = "16BE5869-F19D-4184-A25F-C247861ED333"
 assignToWorkspace = "4"
 bundleId = "com.1password.1password"
 id = "EAEAC675-1119-449D-B55F-C49DEF654D3A"
-
-[[appRules]]
-appNameSubstring = "Localzillion"
-assignToWorkspace = "1"
-bundleId = ""
-id = "4A909B35-3E6B-4625-8C71-109E457D3B8A"
 
 [[appRules]]
 assignToWorkspace = "1"
